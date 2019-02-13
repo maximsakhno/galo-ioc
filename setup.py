@@ -7,6 +7,6 @@ setup(
     author="Maxim Sakhno",
     author_email="maxim.sakhno@iqtek.ru",
     packages=[
-        "bootstrap_commands",
+        "ioc",
     ],
 )
