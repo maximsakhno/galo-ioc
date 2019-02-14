@@ -1,4 +1,5 @@
 from setuptools import setup
+from setuptools import find_packages
 
 
 setup(
@@ -6,7 +7,5 @@ setup(
     version="0.0.1",
     author="Maxim Sakhno",
     author_email="maxim.sakhno@iqtek.ru",
-    packages=[
-        "ioc",
-    ],
+    packages=find_packages(),
 )
