@@ -20,4 +20,4 @@ class Container:
         self.__strategies[key] = strategy
 
     def __getitem__(self, key: Any) -> Callable[..., Any]:
-        pass
+        return self.__strategies[key]
