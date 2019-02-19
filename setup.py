@@ -10,7 +10,7 @@ requirements: Requirements = read(file=path.join("requirements", "prod.txt"))
 
 setup(
     name="ioc",
-    version="0.0.3",
+    version="0.0.4",
     author="Maxim Sakhno",
     author_email="maxim.sakhno@iqtek.ru",
     packages=find_packages(),
