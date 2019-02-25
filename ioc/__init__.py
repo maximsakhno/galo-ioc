@@ -13,8 +13,11 @@ __all__ = [
 resolvers: Dict[Any, Callable[..., Any]] = {}
 
 
-def register(key: Any, resolver: Callable[..., Any]) -> None:
-    resolvers[key] = resolver
+def register(key: Any, value: Any) -> None:
+    if callable(value):
+        resolvers[key] = value
+    else:
+        resolvers[key] = lambda: value
 
 
 def resolve(key: Any, *args: Any, **kwargs: Any) -> Any:
