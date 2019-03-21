@@ -15,7 +15,7 @@ test_requires: List[str] = [
 
 setup(
     name="ioc",
-    version="0.0.5",
+    version="0.0.6",
     author="Maxim Sakhno",
     author_email="maxim.sakhno@iqtek.ru",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),

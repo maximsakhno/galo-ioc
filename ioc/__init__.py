@@ -1,23 +1,71 @@
 from typing import Any
 from typing import Callable
+from typing import List
 from typing import Dict
+from typing import Type
+from typing import get_type_hints
+from types import FunctionType
+from types import MethodType
 
 
 __all__ = [
     "register",
     "resolve",
-    "Singleton",
 ]
 
 
-resolvers: Dict[Any, Callable[..., Any]] = {}
+Resolver = Callable[..., Any]
 
 
-def register(key: Any, value: Any) -> None:
-    if callable(value):
-        resolvers[key] = value
+def is_callable(value: Any) -> bool:
+    return callable(value)
+
+
+def is_type(value: Any) -> bool:
+    return isinstance(value, type)
+
+
+def is_method_or_function(value: Any) -> bool:
+    return isinstance(value, (FunctionType, MethodType))
+
+
+def is_callable_object(value: Any) -> bool:
+    if is_type(value):
+        return False
+    if is_method_or_function(value):
+        return False
+    if not hasattr(value, "__call__"):
+        return False
+    if not is_method_or_function(getattr(value, "__call__")):
+        return False
+    return True
+
+
+def get_keys(value: Any) -> List[Type[Any]]:
+    try:
+        if is_type(value):
+            value: type
+            return list(value.mro())
+        if is_callable_object(value):
+            value = getattr(value, "__call__")
+        if is_method_or_function(value):
+            return list(get_type_hints(value)["return"].mro())
+        return type(value).mro()
+    except Exception as e:
+        raise ValueError(f"Can't get keys from '{value}'. {e}")
+
+
+resolvers: Dict[Any, Resolver] = {}
+
+
+def register(value: Any) -> None:
+    keys: List[Type[Any]] = get_keys(value)
+    if not is_callable(value):
+        for key in keys:
+            resolvers[key] = lambda *args, **kwargs: value
     else:
-        resolvers[key] = lambda: value
+        for key in keys:
+            resolvers[key] = value
 
 
 def resolve(key: Any, *args: Any, **kwargs: Any) -> Any:
@@ -27,15 +75,3 @@ def resolve(key: Any, *args: Any, **kwargs: Any) -> Any:
         raise KeyError(f"Resolver for key '{key}' not found.")
 
     return resolver(*args, **kwargs)
-
-
-class Singleton:
-    __slots__ = (
-        "__instance",
-    )
-
-    def __init__(self, instance: Any) -> None:
-        self.__instance: Any = instance
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return self.__instance
