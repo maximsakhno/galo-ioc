@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Optional
 from typing import Callable
 from typing import List
 from typing import Dict
@@ -58,7 +59,7 @@ def resolve_keys(value: Any) -> List[Type[Any]]:
 resolvers: Dict[Any, Resolver] = {}
 
 
-def register(value: Any, *, key: Any) -> None:
+def register(value: Any, *, key: Optional[Any] = None) -> None:
     if key is not None:
         if isinstance(key, type):
             keys: List[Type[Any]] = list(key.mro())
