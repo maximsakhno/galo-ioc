@@ -41,7 +41,7 @@ def is_callable_object(value: Any) -> bool:
     return True
 
 
-def get_keys(value: Any) -> List[Type[Any]]:
+def resolve_keys(value: Any) -> List[Type[Any]]:
     try:
         if is_type(value):
             value: type
@@ -58,8 +58,15 @@ def get_keys(value: Any) -> List[Type[Any]]:
 resolvers: Dict[Any, Resolver] = {}
 
 
-def register(value: Any) -> None:
-    keys: List[Type[Any]] = get_keys(value)
+def register(value: Any, *, key: Any) -> None:
+    if key is not None:
+        if isinstance(key, type):
+            keys: List[Type[Any]] = list(key.mro())
+        else:
+            keys: List[Type[Any]] = [key]
+    else:
+        keys: List[Type[Any]] = resolve_keys(value)
+
     if not is_callable(value):
         for key in keys:
             resolvers[key] = lambda *args, **kwargs: value
