@@ -92,27 +92,27 @@ def get_factory_container() -> FactoryContainer:
 
 
 @lru_cache(1024)
-def get_factory(factory_type: Type[F], key: Optional[Any] = None) -> F:
+def get_factory(factory_type: Type[F], id: Optional[Any] = None) -> F:
 
     def _factory(*args: Any, **kwargs: Any) -> Any:
-        return get_factory_container().get_factory(factory_type, key)(*args, **kwargs)
+        return get_factory_container().get_factory(factory_type, id)(*args, **kwargs)
 
     return _factory
 
 
-def set_factory(factory_type: Type[F], factory: F, key: Optional[Any] = None) -> None:
-    get_factory_container().set_factory(factory_type, factory, key)
+def set_factory(factory_type: Type[F], factory: F, id: Optional[Any] = None) -> None:
+    get_factory_container().set_factory(factory_type, factory, id)
 
 
 @lru_cache(1024)
-def get_factory_setter(factory_type: Type[F], key: Optional[Any] = None) -> Callable[[F], None]:
+def get_factory_setter(factory_type: Type[F], id: Optional[Any] = None) -> Callable[[F], None]:
 
     def _set_factory(factory: F, /) -> None:
-        set_factory(factory_type, factory, key)
+        set_factory(factory_type, factory, id)
 
     return _set_factory
 
 
 def use_factory(factory_type: Type[F]) -> Tuple[F, Callable[[F], None]]:
-    key = uuid4()
-    return get_factory(factory_type, key), get_factory_setter(factory_type, key)
+    id = uuid4()
+    return get_factory(factory_type, id), get_factory_setter(factory_type, id)

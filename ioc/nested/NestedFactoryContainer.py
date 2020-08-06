@@ -32,11 +32,11 @@ class NestedFactoryContainer(FactoryContainer):
         self.__factory_container = factory_container
         self.__parent_factory_container = parent_factory_container
 
-    def get_factory(self, factory_type: Type[F], key: Optional[Any] = None) -> F:
+    def get_factory(self, factory_type: Type[F], id: Optional[Any] = None) -> F:
         try:
-            return self.__factory_container.get_factory(factory_type, key)
+            return self.__factory_container.get_factory(factory_type, id)
         except FactoryNotFoundException:
-            return self.__parent_factory_container.get_factory(factory_type, key)
+            return self.__parent_factory_container.get_factory(factory_type, id)
 
-    def set_factory(self, factory_type: Type[F], factory: F, key: Optional[Any] = None) -> None:
-        self.__factory_container.set_factory(factory_type, factory, key)
+    def set_factory(self, factory_type: Type[F], factory: F, id: Optional[Any] = None) -> None:
+        self.__factory_container.set_factory(factory_type, factory, id)

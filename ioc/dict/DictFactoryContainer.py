@@ -35,15 +35,15 @@ class DictFactoryContainer(FactoryContainer):
     def __init__(self) -> None:
         self.__factories: Dict[Tuple[Signature, Optional[Any]], Any] = {}
 
-    def get_factory(self, factory_type: Type[F], key: Optional[Any] = None) -> F:
+    def get_factory(self, factory_type: Type[F], id: Optional[Any] = None) -> F:
         check_factory_type(factory_type)
         signature = get_signature(factory_type)
         try:
-            return self.__factories[(signature, key)]
+            return self.__factories[(signature, id)]
         except KeyError:
-            raise FactoryNotFoundException(factory_type, key) from None
+            raise FactoryNotFoundException(factory_type, id) from None
 
-    def set_factory(self, factory_type: Type[F], factory: F, key: Optional[Any] = None) -> None:
+    def set_factory(self, factory_type: Type[F], factory: F, id: Optional[Any] = None) -> None:
         check_factory_type(factory_type)
         signature = get_signature(factory_type)
-        self.__factories[(signature, key)] = factory
+        self.__factories[(signature, id)] = factory

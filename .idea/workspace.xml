@@ -20,11 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b175dfef-af59-4ea9-b5b2-fde0c95d3074" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ioc/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,13 +31,21 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1ffgFkoaEEY51fk5yC30AbGrbOR" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/example/__main__.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
   </component>
   <component name="RunManager">
     <configuration name="example.__main__" type="PythonConfigurationType" factoryName="Python">
@@ -97,5 +101,21 @@
       <screen x="72" y="27" width="1848" height="1053" />
     </state>
     <state x="779" y="324" width="424" height="491" key="FileChooserDialogImpl/72.27.1848.1053@72.27.1848.1053" timestamp="1596614630023" />
+    <state width="1825" height="275" key="GridCell.Tab.0.bottom" timestamp="1596618296303">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state width="1825" height="275" key="GridCell.Tab.0.bottom/72.27.1848.1053@72.27.1848.1053" timestamp="1596618296303" />
+    <state width="1825" height="275" key="GridCell.Tab.0.center" timestamp="1596618296303">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state width="1825" height="275" key="GridCell.Tab.0.center/72.27.1848.1053@72.27.1848.1053" timestamp="1596618296303" />
+    <state width="1825" height="275" key="GridCell.Tab.0.left" timestamp="1596618296302">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state width="1825" height="275" key="GridCell.Tab.0.left/72.27.1848.1053@72.27.1848.1053" timestamp="1596618296302" />
+    <state width="1825" height="275" key="GridCell.Tab.0.right" timestamp="1596618296303">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state width="1825" height="275" key="GridCell.Tab.0.right/72.27.1848.1053@72.27.1848.1053" timestamp="1596618296303" />
   </component>
 </project>
