@@ -155,21 +155,29 @@ def check_instance_type(instance_type: Type[Any]) -> None:
         if name in ignored_names:
             continue
 
-        if not isinstance(member, (staticmethod, classmethod, FunctionType)):
-            raise InvalidInstanceTypeException(instance_type, name, f"Type must be {Union[staticmethod, classmethod, FunctionType]}.") from None
+        if not isinstance(member, (property, staticmethod, classmethod, FunctionType)):
+            message = f"Type must be {Union[property, staticmethod, classmethod, FunctionType]}."
+            raise InvalidInstanceTypeException(instance_type, name, message) from None
 
         if isinstance(member, (staticmethod, classmethod)) and not isinstance(member.__func__, FunctionType):
-            raise InvalidInstanceTypeException(instance_type, name, f"{classmethod} or {staticmethod} must wrap a {FunctionType}.") from None
+            message = f"{classmethod} or {staticmethod} must wrap a {FunctionType}."
+            raise InvalidInstanceTypeException(instance_type, name, message) from None
 
         if name in invalid_names:
-            raise InvalidInstanceTypeException(instance_type, name, f"Attribute is invalid.") from None
+            message = f"Attribute is invalid."
+            raise InvalidInstanceTypeException(instance_type, name, message) from None
 
         if name.startswith("_") and name not in valid_names:
-            raise InvalidInstanceTypeException(instance_type, name, f"Private attributes are invalid.") from None
+            message = f"Private attributes are invalid."
+            raise InvalidInstanceTypeException(instance_type, name, message) from None
 
 
 def generate_instance_proxy(instance_type: Type[I], factory: Callable[[], I]) -> I:
     namespace: Dict[str, Any] = {"__slots__": ()}
+
+    for name, _ in get_properties(instance_type):
+        property_proxy = generate_property_proxy(name, factory)
+        namespace[name] = property_proxy
 
     for name, static_method in get_static_methods(instance_type):
         function = cast(FunctionType, static_method.__func__)
@@ -189,6 +197,10 @@ def generate_instance_proxy(instance_type: Type[I], factory: Callable[[], I]) ->
     return instance_proxy_type()
 
 
+def get_properties(type: Type[Any]) -> Iterable[Tuple[str, property]]:
+    return ((name, member) for name, member in get_members(type) if isinstance(member, property))
+
+
 def get_static_methods(type: Type[Any]) -> Iterable[Tuple[str, staticmethod]]:
     return ((name, member) for name, member in get_members(type) if isinstance(member, staticmethod))
 
@@ -205,6 +217,14 @@ def get_members(type: Type[Any]) -> Iterable[Tuple[str, Any]]:
     for base_type in type.mro()[:-1]:
         for name, member in base_type.__dict__.items():
             yield name, member
+
+
+def generate_property_proxy(name: str, factory: Callable[[], Any]) -> property:
+    return property(
+        fget=lambda self: getattr(factory(), name),
+        fset=lambda self, value: setattr(factory(), name, value),
+        fdel=lambda self: delattr(factory(), name),
+    )
 
 
 def generate_function_proxy(function: FunctionType, factory: Callable[[], Any]) -> FunctionType:

@@ -10,6 +10,10 @@ def main() -> None:
     class IntegerService:
         __slots__ = ()
 
+        @property
+        def integer(self) -> int:
+            raise NotImplementedError()
+
         @staticmethod
         def get_static_integer() -> int:
             raise NotImplementedError()
@@ -23,6 +27,10 @@ def main() -> None:
 
     class IntegerServiceImpl(IntegerService):
         __slots__ = ()
+
+        @property
+        def integer(self) -> int:
+            return 0
 
         @staticmethod
         def get_static_integer() -> int:
@@ -46,6 +54,7 @@ def main() -> None:
 
     with ioc.using_factory_container(ioc.DictFactoryContainer()):
         integer_service_factory_setter(cast(IntegerServiceFactory, lambda: IntegerServiceImpl()))
+        print(integer_service.integer)
         print(integer_service.get_static_integer())
         print(integer_service.get_class_integer())
         print(integer_service.get_integer(3))
