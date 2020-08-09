@@ -7,20 +7,48 @@ from typing import (
 
 def main() -> None:
 
-    class IntegerFactory(Protocol):
+    class IntegerService:
         __slots__ = ()
 
-        def __call__(self, value: int) -> int:
+        @staticmethod
+        def get_static_integer() -> int:
             raise NotImplementedError()
 
-    # integer_factory, set_integer_factory = ioc.use_factory(IntegerFactory)
-    integer_factory = ioc.get_factory(IntegerFactory, "hello world")
-    set_integer_factory = ioc.get_factory_setter(IntegerFactory, "hello world")
+        @classmethod
+        def get_class_integer(cls) -> int:
+            raise NotImplementedError()
+
+        def get_integer(self, value: int = 1) -> int:
+            raise NotImplementedError()
+
+    class IntegerServiceImpl(IntegerService):
+        __slots__ = ()
+
+        @staticmethod
+        def get_static_integer() -> int:
+            return 1
+
+        @classmethod
+        def get_class_integer(cls) -> int:
+            return 2
+
+        def get_integer(self, value: int = 1) -> int:
+            return value
+
+    class IntegerServiceFactory(Protocol):
+        __slots__ = ()
+
+        def __call__(self) -> IntegerService:
+            raise NotImplementedError()
+
+    integer_service_factory, integer_service_factory_setter = ioc.use_factory(IntegerServiceFactory)
+    integer_service = ioc.get_instance(IntegerService, integer_service_factory)
 
     with ioc.using_factory_container(ioc.DictFactoryContainer()):
-        set_integer_factory(cast(IntegerFactory, lambda value: value))
-        value = integer_factory(4)
-        print(value)
+        integer_service_factory_setter(cast(IntegerServiceFactory, lambda: IntegerServiceImpl()))
+        print(integer_service.get_static_integer())
+        print(integer_service.get_class_integer())
+        print(integer_service.get_integer(3))
 
 
 if __name__ == "__main__":

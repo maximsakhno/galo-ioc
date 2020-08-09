@@ -16,20 +16,20 @@ from functools import (
 
 
 __all__ = [
-    "FactoryTypeException",
+    "InvalidFactoryTypeException",
     "check_factory_type",
     "get_signature",
 ]
 
 
-class FactoryTypeException(Exception):
+class InvalidFactoryTypeException(Exception):
     pass
 
 
 @lru_cache(1024)
 def check_factory_type(factory_type: Type[Any]) -> None:
     if Protocol not in factory_type.mro():
-        raise FactoryTypeException(factory_type, f"Is not a protocol.") from None
+        raise InvalidFactoryTypeException(factory_type, f"Must be a protocol.") from None
 
     public_attribute_names: List[str] = []
 
@@ -38,10 +38,10 @@ def check_factory_type(factory_type: Type[Any]) -> None:
             public_attribute_names.append(attribute_name)
 
     if public_attribute_names:
-        raise FactoryTypeException(factory_type, "Has public attributes.", public_attribute_names) from None
+        raise InvalidFactoryTypeException(factory_type, "Public attributes are not allowed.", public_attribute_names) from None
 
     if not issubclass(factory_type, Callable):
-        raise FactoryTypeException(factory_type, "Is not callable.") from None
+        raise InvalidFactoryTypeException(factory_type, "Must be a callable.") from None
 
 
 @lru_cache(1024)
