@@ -19,6 +19,9 @@ prod_requires = [
 
 test_requires = [
     *prod_requires,
+    "pytest==5.4.1",
+    "pytest-asyncio==0.10.0",
+    "coverage==5.0.4",
 ]
 
 
