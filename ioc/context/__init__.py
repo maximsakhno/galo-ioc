@@ -37,9 +37,6 @@ from ..core import (
 from ..nested import (
     NestedFactoryContainer,
 )
-from ..cached import (
-    CachedFactory,
-)
 
 
 __all__ = [
@@ -115,10 +112,10 @@ def get_factory_container() -> FactoryContainer:
 @lru_cache(1024)
 def get_factory(factory_type: Type[F], id: Optional[Any] = None) -> F:
 
-    def _factory(*args: Any, **kwargs: Any) -> Any:
+    def factory_proxy(*args: Any, **kwargs: Any) -> Any:
         return get_factory_container().get_factory(factory_type, id)(*args, **kwargs)
 
-    return _factory
+    return factory_proxy
 
 
 def set_factory(factory_type: Type[F], factory: F, id: Optional[Any] = None) -> None:
@@ -128,10 +125,10 @@ def set_factory(factory_type: Type[F], factory: F, id: Optional[Any] = None) -> 
 @lru_cache(1024)
 def get_factory_setter(factory_type: Type[F], id: Optional[Any] = None) -> Callable[[F], None]:
 
-    def _set_factory(factory: F, /) -> None:
+    def factory_setter_proxy(factory: F, /) -> None:
         set_factory(factory_type, factory, id)
 
-    return _set_factory
+    return factory_setter_proxy
 
 
 def use_factory(factory_type: Type[F]) -> Tuple[F, Callable[[F], None]]:
@@ -141,7 +138,6 @@ def use_factory(factory_type: Type[F]) -> Tuple[F, Callable[[F], None]]:
 
 def get_instance(instance_type: Type[I], factory: Callable[[], I]) -> I:
     check_instance_type(instance_type)
-    factory = CachedFactory(factory)
     return generate_instance_proxy(instance_type, factory)
 
 
