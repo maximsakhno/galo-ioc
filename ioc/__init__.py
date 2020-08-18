@@ -1,9 +1,9 @@
+from .util import *
 from .core import *
 from .context import *
-from .util import *
+from .cached import *
 from .dict import *
 from .nested import *
-from .cached import *
 
 
 __version__ = "0.3.0"
