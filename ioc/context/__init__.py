@@ -1,19 +1,12 @@
 from typing import (
     TypeVar,
-    Union,
     Optional,
     Any,
     Callable,
-    Iterable,
     Tuple,
-    List,
-    Dict,
     Type,
-    cast,
-    get_type_hints,
 )
 from types import (
-    FunctionType,
     TracebackType,
 )
 from uuid import (
@@ -22,11 +15,6 @@ from uuid import (
 from contextvars import (
     Token,
     ContextVar,
-)
-from inspect import (
-    Parameter,
-    Signature,
-    iscoroutinefunction,
 )
 from functools import (
     lru_cache,
@@ -48,7 +36,6 @@ __all__ = [
     "set_factory",
     "get_factory_setter",
     "use_factory",
-    "get_instance",
 ]
 
 
@@ -134,13 +121,3 @@ def get_factory_setter(factory_type: Type[F], id: Optional[Any] = None) -> Calla
 def use_factory(factory_type: Type[F]) -> Tuple[F, Callable[[F], None]]:
     id = uuid4()
     return get_factory(factory_type, id), get_factory_setter(factory_type, id)
-
-
-def get_instance(instance_type: Type[I], factory: Callable[[], I]) -> I:
-    class InstanceProxy(instance_type):
-        __slots__ = ()
-
-        def __getattribute__(self, name: str) -> Any:
-            return getattr(factory(), name)
-
-    return InstanceProxy()

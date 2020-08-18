@@ -1,9 +1,6 @@
 import pytest
 from typing import (
     Protocol,
-    Any,
-    Tuple,
-    Dict,
 )
 from ioc import (
     FactoryContainerNotSetException,
@@ -12,7 +9,6 @@ from ioc import (
     using_factory_container,
     get_factory,
     use_factory,
-    get_instance,
 )
 
 
@@ -81,36 +77,3 @@ def test_different_proxy_factories_with_the_same_factory_type() -> None:
 
         assert integer_factory1() == 0
         assert integer_factory2() == 1
-
-
-def test_accessing_to_proxy_instance() -> None:
-    class Dependency:
-        __slots__ = ()
-
-        def some_method(self) -> int:
-            raise NotImplementedError()
-
-    class DependencyImpl(Dependency):
-        __slots__ = ()
-
-        def some_method(self) -> int:
-            return 42
-
-    class DependencyFactory(Protocol):
-        __slots__ = ()
-
-        def __call__(self) -> Dependency:
-            raise NotImplementedError()
-
-    dependency_factory, dependency_factory_setter = use_factory(DependencyFactory)
-    dependency = get_instance(Dependency, dependency_factory)
-
-    with pytest.raises(FactoryContainerNotSetException):
-        dependency.some_method()
-
-    with using_factory_container(DictFactoryContainer()):
-        with pytest.raises(FactoryNotFoundException):
-            dependency.some_method()
-
-        dependency_factory_setter(lambda: DependencyImpl())
-        assert dependency.some_method() == 42
