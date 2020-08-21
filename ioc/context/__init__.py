@@ -16,8 +16,9 @@ from contextvars import (
     Token,
     ContextVar,
 )
-from functools import (
+from ..util import (
     lru_cache,
+    generate_typed_factory_wrapper,
 )
 from ..core import (
     FactoryContainer,
@@ -40,18 +41,13 @@ __all__ = [
 
 
 E = TypeVar("E", bound=Exception)
-F = TypeVar("F")
-I = TypeVar("I")
+F = TypeVar("F", bound=Callable)
 
 
 factory_container_var: ContextVar[Optional[FactoryContainer]] = ContextVar(str(uuid4()), default=None)
 
 
 class FactoryContainerNotSetException(Exception):
-    pass
-
-
-class InvalidInstanceTypeException(Exception):
     pass
 
 
@@ -73,7 +69,7 @@ class FactoryContainerContextManagerImpl(FactoryContainerContextManager):
 
     def __init__(self, factory_container: FactoryContainer) -> None:
         self.__factory_container = factory_container
-        self.__token: Optional[Token[FactoryContainer]] = None
+        self.__token: Optional[Token[Optional[FactoryContainer]]] = None
 
     def __enter__(self) -> None:
         if (parent_factory_container := factory_container_var.get()) is None:
@@ -83,7 +79,8 @@ class FactoryContainerContextManagerImpl(FactoryContainerContextManager):
         self.__token = factory_container_var.set(factory_container)
 
     def __exit__(self, exception_type: Type[E], exception: E, traceback: TracebackType) -> None:
-        factory_container_var.reset(self.__token)
+        if self.__token is not None:
+            factory_container_var.reset(self.__token)
 
 
 def using_factory_container(factory_container: FactoryContainer) -> FactoryContainerContextManager:
@@ -98,11 +95,14 @@ def get_factory_container() -> FactoryContainer:
 
 @lru_cache(1024)
 def get_factory(factory_type: Type[F], id: Optional[Any] = None) -> F:
+    return generate_factory_proxy(factory_type, id)
 
-    def factory_proxy(*args: Any, **kwargs: Any) -> Any:
+
+def generate_factory_proxy(factory_type: Type[F], id: Optional[Any] = None) -> F:
+    def wrappee(*args: Any, **kwargs: Any) -> Any:
         return get_factory_container().get_factory(factory_type, id)(*args, **kwargs)
 
-    return factory_proxy
+    return generate_typed_factory_wrapper(factory_type, wrappee)
 
 
 def set_factory(factory_type: Type[F], factory: F, id: Optional[Any] = None) -> None:
@@ -111,7 +111,10 @@ def set_factory(factory_type: Type[F], factory: F, id: Optional[Any] = None) -> 
 
 @lru_cache(1024)
 def get_factory_setter(factory_type: Type[F], id: Optional[Any] = None) -> Callable[[F], None]:
+    return generate_factory_setter(factory_type, id)
 
+
+def generate_factory_setter(factory_type: Type[F], id: Optional[Any] = None) -> Callable[[F], None]:
     def factory_setter_proxy(factory: F, /) -> None:
         set_factory(factory_type, factory, id)
 

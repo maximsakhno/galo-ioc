@@ -1,6 +1,7 @@
 from typing import (
     TypeVar,
     Optional,
+    Callable,
     Any,
     Type,
 )
@@ -11,7 +12,7 @@ __all__ = [
 ]
 
 
-F = TypeVar("F")
+F = TypeVar("F", bound=Callable)
 
 
 class FactoryContainer:
