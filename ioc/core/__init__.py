@@ -1,4 +1,5 @@
 from .InvalidFactoryTypeException import InvalidFactoryTypeException
 from .InvalidFactoryException import InvalidFactoryException
 from .FactoryNotFoundException import FactoryNotFoundException
-from .FactoryContainer import FactoryContainer
+from .Key import Key
+from .FactoryStorage import FactoryStorage

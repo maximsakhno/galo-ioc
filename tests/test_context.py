@@ -1,149 +1,170 @@
 import pytest
-from unittest.mock import (
-    Mock,
-    AsyncMock,
-)
 from ioc import (
-    FactoryContainerNotSetException,
+    FactoryStorageNotSetException,
     FactoryNotFoundException,
-    DictFactoryContainer,
-    using_factory_container,
+    Key,
+    DictFactoryStorage,
+    using_factory_storage,
     get_factory,
     use_factory,
 )
 
 
-class TestFactory:
+class SomeFactory:
     __slots__ = ()
 
     def __call__(self) -> int:
         raise NotImplementedError()
 
 
-def test_calling_factory_proxy_out_of_factory_container_context() -> None:
-    test_factory = get_factory(TestFactory)
+class SomeFactoryStub(SomeFactory):
+    __slots__ = (
+        "__value",
+    )
 
-    with pytest.raises(FactoryContainerNotSetException):
+    def __init__(self, value: int) -> None:
+        self.__value = value
+
+    def __call__(self) -> int:
+        return self.__value
+
+
+def test_calling_factory_proxy_out_of_factory_storage_context() -> None:
+    test_factory = get_factory(Key(SomeFactory))
+
+    with pytest.raises(FactoryStorageNotSetException):
         test_factory()
 
 
-def test_calling_factory_proxy_inside_factory_container_context() -> None:
-    test_factory, set_test_factory = use_factory(TestFactory)
+def test_calling_factory_proxy_inside_factory_storage_context() -> None:
+    test_factory, set_test_factory = use_factory(Key(SomeFactory))
 
-    with using_factory_container(DictFactoryContainer()):
+    with using_factory_storage(DictFactoryStorage()):
         with pytest.raises(FactoryNotFoundException):
             test_factory()
 
-        set_test_factory(Mock(TestFactory, return_value=42))
+        set_test_factory(SomeFactoryStub(42))
         assert test_factory() == 42
 
 
-def test_calling_factory_proxy_inside_different_factory_container_contexts() -> None:
-    test_factory, set_test_factory = use_factory(TestFactory)
+def test_calling_factory_proxy_inside_different_factory_storage_contexts() -> None:
+    test_factory, set_test_factory = use_factory(Key(SomeFactory))
 
-    with using_factory_container(DictFactoryContainer()):
-        set_test_factory(Mock(TestFactory, return_value=42))
+    with using_factory_storage(DictFactoryStorage()):
+        set_test_factory(SomeFactoryStub(42))
 
-    with using_factory_container(DictFactoryContainer()):
+    with using_factory_storage(DictFactoryStorage()):
         with pytest.raises(FactoryNotFoundException):
             test_factory()
 
 
-def test_nested_factory_container_context() -> None:
-    test_factory, set_test_factory = use_factory(TestFactory)
+def test_nested_factory_storage_context() -> None:
+    test_factory, set_test_factory = use_factory(Key(SomeFactory))
 
-    with using_factory_container(DictFactoryContainer()):
-        set_test_factory(Mock(TestFactory, return_value=1))
+    with using_factory_storage(DictFactoryStorage()):
+        set_test_factory(SomeFactoryStub(1))
 
-        with using_factory_container(DictFactoryContainer()):
+        with using_factory_storage(DictFactoryStorage()):
             assert test_factory() == 1
 
-            set_test_factory(Mock(TestFactory, return_value=2))
+            set_test_factory(SomeFactoryStub(2))
             assert test_factory() == 2
 
         assert test_factory() == 1
 
 
 def test_different_factory_proxies_with_the_same_factory_type() -> None:
-    test_factory1, set_test_factory1 = use_factory(TestFactory)
-    test_factory2, set_test_factory2 = use_factory(TestFactory)
+    test_factory1, set_test_factory1 = use_factory(Key(SomeFactory, "1"))
+    test_factory2, set_test_factory2 = use_factory(Key(SomeFactory, "2"))
 
-    with using_factory_container(DictFactoryContainer()):
-        set_test_factory1(Mock(TestFactory, return_value=1))
+    with using_factory_storage(DictFactoryStorage()):
+        set_test_factory1(SomeFactoryStub(1))
 
         with pytest.raises(FactoryNotFoundException):
             test_factory2()
 
-        set_test_factory2(Mock(TestFactory, return_value=2))
+        set_test_factory2(SomeFactoryStub(2))
 
         assert test_factory1() == 1
         assert test_factory2() == 2
 
 
 def test_factory_with_different_argument_kinds_proxy() -> None:
-    class TestFactoryWithDifferentArgumentKinds:
+    class SomeFactoryWithDifferentArgumentKinds:
         __slots__ = ()
 
         def __call__(self, a: int, /, b: int, *, c: int = 3) -> int:
             raise NotImplementedError()
 
-    test_factory_mock = Mock(TestFactoryWithDifferentArgumentKinds, return_value=42)
-    test_factory, set_test_factory = use_factory(TestFactoryWithDifferentArgumentKinds)
+    class SomeFactoryWithDifferentArgumentKindsStub(SomeFactoryWithDifferentArgumentKinds):
+        __slots__ = ()
 
-    with using_factory_container(DictFactoryContainer()):
-        set_test_factory(test_factory_mock)
+        def __call__(self, a: int, /, b: int, *, c: int = 3) -> int:
+            return 42
+
+    test_factory, set_test_factory = use_factory(Key(SomeFactoryWithDifferentArgumentKinds))
+
+    with using_factory_storage(DictFactoryStorage()):
+        set_test_factory(SomeFactoryWithDifferentArgumentKindsStub())
         assert test_factory(1, 2) == 42
-
-    test_factory_mock.assert_called_once_with(1, 2, c=3)
 
 
 def test_factory_with_variadic_arguments_proxy() -> None:
-    class TestFactoryWithVariadicArguments:
+    class SomeFactoryWithVariadicArguments:
         __slots__ = ()
 
         def __call__(self, *args: int, **kwargs: int) -> int:
             raise NotImplementedError()
 
-    test_factory_mock = Mock(TestFactoryWithVariadicArguments, return_value=42)
-    test_factory, set_test_factory = use_factory(TestFactoryWithVariadicArguments)
+    class SomeFactoryWithVariadicArgumentsStub(SomeFactoryWithVariadicArguments):
+        __slots__ = ()
 
-    with using_factory_container(DictFactoryContainer()):
-        set_test_factory(test_factory_mock)
+        def __call__(self, *args: int, **kwargs: int) -> int:
+            return 42
+
+    test_factory, set_test_factory = use_factory(Key(SomeFactoryWithVariadicArguments))
+
+    with using_factory_storage(DictFactoryStorage()):
+        set_test_factory(SomeFactoryWithVariadicArgumentsStub())
         assert test_factory(1, b=2) == 42
-
-    test_factory_mock.assert_called_once_with(1, b=2)
 
 
 def test_factory_with_positional_only_arguments_proxy() -> None:
-    class TestFactoryWithPositionalOnlyArguments:
+    class SomeFactoryWithPositionalOnlyArguments:
         __slots__ = ()
 
         def __call__(self, a: int, /) -> int:
             raise NotImplementedError()
 
-    test_factory_mock = Mock(TestFactoryWithPositionalOnlyArguments, return_value=42)
-    test_factory, set_test_factory = use_factory(TestFactoryWithPositionalOnlyArguments)
+    class SomeFactoryWithPositionalOnlyArgumentsStub(SomeFactoryWithPositionalOnlyArguments):
+        __slots__ = ()
 
-    with using_factory_container(DictFactoryContainer()):
-        set_test_factory(test_factory_mock)
+        def __call__(self, a: int, /) -> int:
+            return 42
+
+    test_factory, set_test_factory = use_factory(Key(SomeFactoryWithPositionalOnlyArguments))
+
+    with using_factory_storage(DictFactoryStorage()):
+        set_test_factory(SomeFactoryWithPositionalOnlyArgumentsStub())
         assert test_factory(1) == 42
-
-    test_factory_mock.assert_called_once_with(1)
 
 
 @pytest.mark.asyncio
 async def test_async_factory_proxy() -> None:
-    class TestAsyncFactory:
+    class SomeAsyncFactory:
         __slots__ = ()
 
         async def __call__(self) -> int:
             raise NotImplementedError()
 
-    test_factory_mock = AsyncMock(TestAsyncFactory, return_value=42)
-    test_factory, set_test_factory = use_factory(TestAsyncFactory)
+    class SomeAsyncFactoryStub(SomeAsyncFactory):
+        __slots__ = ()
 
-    with using_factory_container(DictFactoryContainer()):
-        set_test_factory(test_factory_mock)
+        async def __call__(self) -> int:
+            return 42
+
+    test_factory, set_test_factory = use_factory(Key(SomeAsyncFactory))
+
+    with using_factory_storage(DictFactoryStorage()):
+        set_test_factory(SomeAsyncFactoryStub())
         assert await test_factory() == 42
-
-    test_factory_mock.assert_awaited_once()

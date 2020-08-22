@@ -3,7 +3,8 @@ from ioc import (
     InvalidFactoryTypeException,
     InvalidFactoryException,
     FactoryNotFoundException,
-    DictFactoryContainer,
+    Key,
+    DictFactoryStorage,
 )
 
 
@@ -26,55 +27,67 @@ class SomeFactoryStub(SomeFactory):
         return self.__value
 
 
+def test_keys() -> None:
+    storage = DictFactoryStorage()
+    assert set(storage.keys) == set()
+
+    storage.set_factory(Key(SomeFactory), SomeFactoryStub(42))
+    assert set(storage.keys) == {Key(SomeFactory)}
+
+    storage.set_factory(Key(SomeFactory, "1"), SomeFactoryStub(1))
+    storage.set_factory(Key(SomeFactory, "1"), SomeFactoryStub(1))
+    assert set(storage.keys) == {Key(SomeFactory), Key(SomeFactory, "1")}
+
+
 def test_getting_existing_factory() -> None:
-    container = DictFactoryContainer()
-    container.set_factory(SomeFactory, SomeFactoryStub(42))
-    assert container.get_factory(SomeFactory)() == 42
+    storage = DictFactoryStorage()
+    storage.set_factory(Key(SomeFactory), SomeFactoryStub(42))
+    assert storage.get_factory(Key(SomeFactory))() == 42
 
 
 def test_getting_missing_factory() -> None:
-    container = DictFactoryContainer()
+    storage = DictFactoryStorage()
 
     with pytest.raises(FactoryNotFoundException):
-        container.get_factory(SomeFactory)
+        storage.get_factory(Key(SomeFactory))
 
 
 def test_getting_factory_by_id() -> None:
-    container = DictFactoryContainer()
-    container.set_factory(SomeFactory, SomeFactoryStub(42), "id1")
+    storage = DictFactoryStorage()
+    storage.set_factory(Key(SomeFactory, "1"), SomeFactoryStub(42))
 
     with pytest.raises(FactoryNotFoundException):
-        container.get_factory(SomeFactory)
+        storage.get_factory(Key(SomeFactory))
 
     with pytest.raises(FactoryNotFoundException):
-        container.get_factory(SomeFactory, "id2")
+        storage.get_factory(Key(SomeFactory, "2"))
 
-    assert container.get_factory(SomeFactory, "id1")() == 42
+    assert storage.get_factory(Key(SomeFactory, "1"))() == 42
 
 
 def test_setting_factory_invalid_attributes() -> None:
-    class TestFactoryWithPublicAttributes:
+    class SomeFactoryWithPublicAttributes:
         __slots__ = ()
 
-        invalid_attribute = "invalid_attribute"
+        public_attribute = "public_attribute"
 
         def __call__(self) -> int:
             raise NotImplementedError()
 
-    container = DictFactoryContainer()
+    storage = DictFactoryStorage()
 
     with pytest.raises(InvalidFactoryTypeException):
-        container.set_factory(TestFactoryWithPublicAttributes, TestFactoryWithPublicAttributes())
+        storage.set_factory(Key(SomeFactoryWithPublicAttributes), SomeFactoryWithPublicAttributes())
 
 
 def test_setting_non_callable_factory() -> None:
-    class NoNCallableTestFactory:
+    class NoNCallableFactory:
         __slots__ = ()
 
-    container = DictFactoryContainer()
+    storage = DictFactoryStorage()
 
     with pytest.raises(InvalidFactoryTypeException):
-        container.set_factory(NoNCallableTestFactory, NoNCallableTestFactory())  # type: ignore
+        storage.set_factory(Key(NoNCallableFactory), NoNCallableFactory())  # type: ignore
 
 
 def test_setting_factory_with_different_type() -> None:
@@ -84,7 +97,7 @@ def test_setting_factory_with_different_type() -> None:
         def __call__(self) -> int:
             return 42
 
-    container = DictFactoryContainer()
+    storage = DictFactoryStorage()
 
     with pytest.raises(InvalidFactoryException):
-        container.set_factory(SomeFactory, NotSubClassTestFactory())  # type: ignore
+        storage.set_factory(Key(SomeFactory), NotSubClassTestFactory())  # type: ignore
