@@ -6,4 +6,4 @@ from .singleton_factory import *
 from .function_factory import *
 
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"

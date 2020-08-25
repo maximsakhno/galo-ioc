@@ -63,25 +63,37 @@ def get_defined_attribute_names(factory_type: Type[Any]) -> Iterable[str]:
 
 
 SYNC_TYPED_FACTORY_WRAPPER_STMT_TEMPLATE = """
-class FactoryWrapper(factory_type):
-    __slots__ = ()
+class WrapperFactory(factory_type):
+    __slots__ = (
+        "__wrappee",
+    )
+    
+    def __init__(self, wrappee: Callable[..., Any]) -> None:
+        self.__wrappee = wrappee
+    
     def __call__{signature_stmt}:
-        return wrappee({arguments_stmt})
+        return self.__wrappee({arguments_stmt})
 """
 
 
 ASYNC_TYPED_FACTORY_WRAPPER_STMT_TEMPLATE = """
-class FactoryWrapper(factory_type):
-    __slots__ = ()
+class WrapperFactory(factory_type):
+    __slots__ = (
+        "__wrappee",
+    )
+    
+    def __init__(self, wrappee: Callable[..., Any]) -> None:
+        self.__wrappee = wrappee
+
     async def __call__{signature_stmt}:
-        return await wrappee({arguments_stmt})
+        return await self.__wrappee({arguments_stmt})
 """
 
 
 def generate_typed_factory_wrapper(factory_type: Type[F], wrappee: Callable[..., Any]) -> F:
     check_factory_type(factory_type)
     signature = get_signature(cast(FunctionType, factory_type.__call__))
-    globals: Dict[str, Any] = {"factory_type": factory_type, "wrappee": wrappee}
+    globals: Dict[str, Any] = {"Any": Any, "Callable": Callable, "factory_type": factory_type}
     signature_stmt = generate_signature_stmt(globals, signature)
     arguments_stmt = generate_arguments_stmt(signature)
     if iscoroutinefunction(factory_type.__call__):
@@ -93,10 +105,10 @@ def generate_typed_factory_wrapper(factory_type: Type[F], wrappee: Callable[...,
         arguments_stmt=arguments_stmt,
     )
     exec(typed_factory_wrapper_stmt, globals)
-    typed_factory_wrapper_type = cast(type, globals["FactoryWrapper"])
+    wrapper_factory_type = cast(type, globals["WrapperFactory"])
     type_hints = get_type_hints(factory_type.__call__)
-    typed_factory_wrapper_type.__call__.__annotations__ = type_hints
-    typed_factory_wrapper = typed_factory_wrapper_type()
+    wrapper_factory_type.__call__.__annotations__ = type_hints
+    typed_factory_wrapper = wrapper_factory_type(wrappee)
     return typed_factory_wrapper
 
 

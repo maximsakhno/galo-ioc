@@ -33,21 +33,33 @@ class InvalidObjectTypeException(Exception):
 
 SYNC_SINGLETON_STMT = """
 class Singleton(factory_type):
-    __slots__ = ()
+    __slots__ = (
+        "__instance",
+    )
+    
+    def __init__(self, instance: Any) -> None:
+        self.__instance = instance
+    
     def __call__(self) -> return_annotation:
-        return object
+        return self.__instance
 """
 
 
 ASYNC_SINGLETON_STMT = """
 class Singleton(factory_type):
-    __slots__ = ()
+    __slots__ = (
+        "__instance",
+    )
+    
+    def __init__(self, instance: Any) -> None:
+        self.__instance = instance
+    
     async def __call__(self) -> return_annotation:
-        return object
+        return self.__instance
 """
 
 
-def generate_singleton_factory(factory_type: Type[F], object: Any) -> F:
+def generate_singleton_factory(factory_type: Type[F], instance: Any) -> F:
     check_factory_type(factory_type)
     signature = Signature.from_callable(factory_type.__call__)
     type_hints = get_type_hints(factory_type.__call__)
@@ -59,10 +71,10 @@ def generate_singleton_factory(factory_type: Type[F], object: Any) -> F:
         raise InvalidFactoryTypeException(factory_type, "Return annotation is required.") from None
     if not isinstance(return_annotation, type):
         raise InvalidFactoryTypeException(factory_type, "Return annotation must be a class.") from None
-    if not isinstance(object, return_annotation):
-        message = f"Object '{object}' must be instance of '{return_annotation}'."
+    if not isinstance(instance, return_annotation):
+        message = f"Object '{instance}' must be instance of '{return_annotation}'."
         raise InvalidObjectTypeException(factory_type, message) from None
-    globals = {"factory_type": factory_type, "return_annotation": return_annotation, "object": object}
+    globals = {"Any": Any, "factory_type": factory_type, "return_annotation": return_annotation}
     if iscoroutinefunction(factory_type.__call__):
         singleton_stmt = ASYNC_SINGLETON_STMT
     else:
@@ -70,5 +82,5 @@ def generate_singleton_factory(factory_type: Type[F], object: Any) -> F:
     exec(singleton_stmt, globals)
     singleton_type = cast(type, globals["Singleton"])
     singleton_type.__call__.__annotations__ = type_hints
-    singleton = singleton_type()
+    singleton = singleton_type(instance)
     return singleton
