@@ -20,7 +20,7 @@ from ..core import (
 
 __all__ = [
     "InvalidObjectTypeException",
-    "generate_singleton",
+    "generate_singleton_factory",
 ]
 
 
@@ -47,7 +47,7 @@ class Singleton(factory_type):
 """
 
 
-def generate_singleton(factory_type: Type[F], object: Any) -> F:
+def generate_singleton_factory(factory_type: Type[F], object: Any) -> F:
     check_factory_type(factory_type)
     signature = Signature.from_callable(factory_type.__call__)
     type_hints = get_type_hints(factory_type.__call__)

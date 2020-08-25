@@ -21,7 +21,7 @@ from ..util import (
 
 __all__ = [
     "InvalidFunctionException",
-    "generate_factory_from_function",
+    "generate_function_factory",
 ]
 
 
@@ -32,11 +32,11 @@ class InvalidFunctionException(Exception):
     pass
 
 
-def generate_factory_from_function(factory_type: Type[F], function: Callable) -> F:
+def generate_function_factory(factory_type: Type[F], function: Callable) -> F:
     if not isinstance(function, FunctionType):
-        raise InvalidFunctionException(function, "Must be a function.") from None
+        raise InvalidFunctionException(function, "Must be a function_factory.") from None
     if iscoroutinefunction(factory_type.__call__) and not iscoroutinefunction(function):
-        raise InvalidFunctionException(function, "Must be a coroutine function.") from None
+        raise InvalidFunctionException(function, "Must be a coroutine function_factory.") from None
     factory_signature = get_factory_signature(factory_type)
     function_signature = get_signature(function)
     if function_signature != factory_signature:
