@@ -1,5 +1,6 @@
 from typing import (
     TypeVar,
+    Any,
     Callable,
     Collection,
 )
@@ -23,27 +24,27 @@ F = TypeVar("F", bound=Callable)
 
 class NestedFactoryStorage(FactoryStorage):
     __slots__ = (
-        "__factory_storage",
+        "__nested_factory_storage",
         "__parent_factory_storage",
     )
 
     def __init__(
         self,
-        factory_storage: FactoryStorage,
+        nested_factory_storage: FactoryStorage,
         parent_factory_storage: FactoryStorage,
     ) -> None:
-        self.__factory_storage = factory_storage
+        self.__nested_factory_storage = nested_factory_storage
         self.__parent_factory_storage = parent_factory_storage
 
     @property
-    def keys(self) -> Collection[Key[Callable]]:
-        return frozenset(chain(self.__factory_storage.keys, self.__parent_factory_storage.keys))
+    def keys(self) -> Collection[Key[Any]]:
+        return frozenset(chain(self.__nested_factory_storage.keys, self.__parent_factory_storage.keys))
 
     def get_factory(self, key: Key[F]) -> F:
         try:
-            return self.__factory_storage.get_factory(key)
+            return self.__nested_factory_storage.get_factory(key)
         except FactoryNotFoundException:
             return self.__parent_factory_storage.get_factory(key)
 
     def set_factory(self, key: Key[F], factory: F) -> None:
-        self.__factory_storage.set_factory(key, factory)
+        self.__nested_factory_storage.set_factory(key, factory)

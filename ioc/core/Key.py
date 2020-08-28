@@ -1,7 +1,6 @@
 from typing import (
     TypeVar,
     Generic,
-    Optional,
     Any,
     Callable,
     Type,
@@ -27,7 +26,7 @@ class Key(Generic[F]):
     def __init__(
         self,
         factory_type: Type[F],
-        id: Optional[str] = None,
+        id: str = "",
     ) -> None:
         self.__factory_type = factory_type
         self.__id = id
@@ -37,7 +36,7 @@ class Key(Generic[F]):
         return self.__factory_type
 
     @property
-    def id(self) -> Optional[str]:
+    def id(self) -> str:
         return self.__id
 
     def __eq__(self, other: Any) -> bool:

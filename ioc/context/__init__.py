@@ -82,7 +82,7 @@ class FactoryStorageContextManagerImpl(FactoryStorageContextManager):
             factory_storage = self.__factory_storage
         else:
             factory_storage = NestedFactoryStorage(
-                factory_storage=self.__factory_storage,
+                nested_factory_storage=self.__factory_storage,
                 parent_factory_storage=parent_factory_storage,
             )
         self.__token = factory_storage_var.set(factory_storage)

@@ -33,7 +33,7 @@ class DictFactoryStorage(FactoryStorage):
         self.__factories: Dict[Key[Any], Any] = {}
 
     @property
-    def keys(self) -> Collection[Key[Callable]]:
+    def keys(self) -> Collection[Key[Any]]:
         return frozenset(self.__factories.keys())
 
     def get_factory(self, key: Key[F]) -> F:

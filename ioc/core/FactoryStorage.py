@@ -19,7 +19,7 @@ class FactoryStorage:
     __slots__ = ()
 
     @property
-    def keys(self) -> Collection[Key[Callable]]:
+    def keys(self) -> Collection[Key[Any]]:
         raise NotImplementedError()
 
     def get_factory(self, key: Key[F]) -> F:
