@@ -19,9 +19,6 @@ from inspect import (
     Signature,
     iscoroutinefunction,
 )
-from ..core import (
-    InvalidFactoryTypeException,
-)
 
 
 __all__ = [
@@ -51,9 +48,9 @@ def check_factory_type(factory_type: Type[Any]) -> None:
             invalid_attribute_names.add(attribute_name)
         missing_attribute_names.discard(attribute_name)
     if invalid_attribute_names:
-        raise InvalidFactoryTypeException(factory_type, "Must not have attributes.", invalid_attribute_names) from None
+        raise TypeError(factory_type, "Must not have attributes.", invalid_attribute_names) from None
     if missing_attribute_names:
-        raise InvalidFactoryTypeException(factory_type, "Must have attributes.", missing_attribute_names) from None
+        raise TypeError(factory_type, "Must have attributes.", missing_attribute_names) from None
 
 
 def get_defined_attribute_names(factory_type: Type[Any]) -> Iterable[str]:

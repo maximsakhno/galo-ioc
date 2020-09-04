@@ -31,9 +31,10 @@ from ..nested_factory_storage import (
 
 
 __all__ = [
+    "FactoryStorageSetException",
     "FactoryStorageNotSetException",
     "FactoryStorageContextManager",
-    "using_factory_storage",
+    "FactoryStorageContextManagerImpl",
     "get_factory_storage",
     "get_factory",
     "set_factory",
@@ -45,10 +46,14 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
-factory_storage_var: ContextVar[Optional[FactoryStorage]] = ContextVar(str(uuid4()), default=None)
+factory_storage_var: ContextVar[FactoryStorage] = ContextVar(str(uuid4()))
 
 
 class FactoryStorageNotSetException(Exception):
+    pass
+
+
+class FactoryStorageSetException(Exception):
     pass
 
 
@@ -69,24 +74,25 @@ class FactoryStorageContextManager:
 
 class FactoryStorageContextManagerImpl(FactoryStorageContextManager):
     __slots__ = (
-        "__factory_storage",
+        "__storage",
         "__token",
     )
 
-    def __init__(self, factory_storage: FactoryStorage) -> None:
-        self.__factory_storage = factory_storage
-        self.__token: Optional[Token[Optional[FactoryStorage]]] = None
+    def __init__(self, storage: FactoryStorage) -> None:
+        self.__storage = storage
+        self.__token: Optional[Token[FactoryStorage]] = None
 
     def __enter__(self) -> FactoryStorage:
-        if (parent_factory_storage := factory_storage_var.get()) is None:
-            factory_storage = self.__factory_storage
+        if self.__token is not None:
+            raise FactoryStorageSetException() from None
+        try:
+            storage = factory_storage_var.get()
+        except LookupError:
+            storage = self.__storage
         else:
-            factory_storage = NestedFactoryStorage(
-                nested_factory_storage=self.__factory_storage,
-                parent_factory_storage=parent_factory_storage,
-            )
-        self.__token = factory_storage_var.set(factory_storage)
-        return factory_storage
+            storage = NestedFactoryStorage(self.__storage, storage)
+        self.__token = factory_storage_var.set(storage)
+        return storage
 
     def __exit__(
         self,
@@ -99,14 +105,11 @@ class FactoryStorageContextManagerImpl(FactoryStorageContextManager):
         return False
 
 
-def using_factory_storage(factory_storage: FactoryStorage) -> FactoryStorageContextManager:
-    return FactoryStorageContextManagerImpl(factory_storage)
-
-
 def get_factory_storage() -> FactoryStorage:
-    if (factory_storage := factory_storage_var.get()) is None:
-        raise FactoryStorageNotSetException()
-    return factory_storage
+    try:
+        return factory_storage_var.get()
+    except LookupError:
+        raise FactoryStorageNotSetException() from None
 
 
 @lru_cache(1024)
@@ -116,13 +119,13 @@ def get_factory(key: Key[F]) -> F:
 
 def generate_factory_proxy(key: Key[F]) -> F:
     def wrappee(*args: Any, **kwargs: Any) -> Any:
-        return get_factory_storage().get_factory(key)(*args, **kwargs)
+        return get_factory_storage()[key](*args, **kwargs)
 
     return generate_typed_factory_wrapper(key.factory_type, wrappee)
 
 
 def set_factory(key: Key[F], factory: F) -> None:
-    get_factory_storage().set_factory(key, factory)
+    get_factory_storage()[key] = factory
 
 
 @lru_cache(1024)

@@ -1,6 +1,5 @@
 import pytest
 from ioc import (
-    InvalidFunctionException,
     generate_function_factory,
 )
 
@@ -45,7 +44,7 @@ async def test_generate_async_factory_from_sync_function() -> None:
     def test_function(value: int) -> int:
         return value + 1
 
-    with pytest.raises(InvalidFunctionException):
+    with pytest.raises(ValueError):
         generate_function_factory(TestFactory, test_function)
 
 
@@ -57,7 +56,7 @@ async def test_generate_factory_from_not_a_function() -> None:
         async def __call__(self) -> int:
             raise NotImplementedError()
 
-    with pytest.raises(InvalidFunctionException):
+    with pytest.raises(ValueError):
         generate_function_factory(TestFactory, int)
 
 
@@ -71,5 +70,5 @@ def test_generate_factory_from_function_with_different_signature() -> None:
     def test_function() -> int:
         return 42
 
-    with pytest.raises(InvalidFunctionException):
+    with pytest.raises(ValueError):
         generate_function_factory(TestFactory, test_function)

@@ -2,7 +2,7 @@ from typing import (
     TypeVar,
     Any,
     Callable,
-    Collection,
+    Iterator,
 )
 from .Key import Key
 
@@ -18,12 +18,23 @@ F = TypeVar("F", bound=Callable)
 class FactoryStorage:
     __slots__ = ()
 
-    @property
-    def keys(self) -> Collection[Key[Any]]:
+    def __getitem__(self, key: Key[F]) -> F:
         raise NotImplementedError()
 
-    def get_factory(self, key: Key[F]) -> F:
+    def __setitem__(self, key: Key[F], factory: F) -> None:
         raise NotImplementedError()
 
-    def set_factory(self, key: Key[F], factory: F) -> None:
+    def __delitem__(self, key: Key[F]) -> None:
+        raise NotImplementedError()
+
+    def __contains__(self, key: Key[Any]) -> bool:
+        raise NotImplementedError()
+
+    def __len__(self) -> int:
+        raise NotImplementedError()
+
+    def __iter__(self) -> Iterator[Key[Any]]:
+        raise NotImplementedError()
+
+    def __bool__(self) -> bool:
         raise NotImplementedError()

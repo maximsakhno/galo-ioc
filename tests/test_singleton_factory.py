@@ -3,8 +3,6 @@ from typing import (
     Optional,
 )
 from ioc import (
-    InvalidFactoryTypeException,
-    InvalidObjectTypeException,
     generate_singleton_factory,
 )
 
@@ -42,7 +40,7 @@ async def test_factory_type_with_parameters() -> None:
         def __call__(self, a: int) -> int:
             raise NotImplementedError()
 
-    with pytest.raises(InvalidFactoryTypeException):
+    with pytest.raises(TypeError):
         generate_singleton_factory(TestFactory, 42)
 
 
@@ -54,7 +52,7 @@ async def test_factory_type_without_return_annotation() -> None:
         def __call__(self):
             raise NotImplementedError()
 
-    with pytest.raises(InvalidFactoryTypeException):
+    with pytest.raises(TypeError):
         generate_singleton_factory(TestFactory, 42)
 
 
@@ -65,7 +63,7 @@ def test_factory_type_with_not_a_class_return_annotation() -> None:
         def __call__(self) -> Optional[int]:
             raise NotImplementedError()
 
-    with pytest.raises(InvalidFactoryTypeException):
+    with pytest.raises(TypeError):
         generate_singleton_factory(TestFactory, 42)
 
 
@@ -76,5 +74,5 @@ def test_mismatch_object_type_and_return_annotation() -> None:
         def __call__(self) -> int:
             raise NotImplementedError()
 
-    with pytest.raises(InvalidObjectTypeException):
+    with pytest.raises(TypeError):
         generate_singleton_factory(TestFactory, "42")

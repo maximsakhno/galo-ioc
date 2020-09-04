@@ -20,7 +20,6 @@ from ..util import (
 
 
 __all__ = [
-    "InvalidFunctionException",
     "generate_function_factory",
 ]
 
@@ -28,19 +27,15 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
-class InvalidFunctionException(Exception):
-    pass
-
-
 def generate_function_factory(factory_type: Type[F], function: Callable) -> F:
     if not isinstance(function, FunctionType):
-        raise InvalidFunctionException(function, "Must be a function.") from None
+        raise ValueError(function, "Must be a function.") from None
     if iscoroutinefunction(factory_type.__call__) and not iscoroutinefunction(function):
-        raise InvalidFunctionException(function, "Must be a coroutine function.") from None
+        raise ValueError(function, "Must be a coroutine function.") from None
     factory_signature = get_factory_signature(factory_type)
     function_signature = get_signature(function)
     if function_signature != factory_signature:
-        raise InvalidFunctionException(factory_type, function, "Must have equal signatures.") from None
+        raise ValueError(factory_type, function, "Must have equal signatures.") from None
     return generate_typed_factory_wrapper(factory_type, function)
 
 
