@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     Iterator,
+    final,
 )
 from itertools import (
     chain,
@@ -21,6 +22,7 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
+@final
 class NestedFactoryStorage(FactoryStorage):
     __slots__ = (
         "__nested",

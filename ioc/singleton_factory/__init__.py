@@ -24,12 +24,12 @@ F = TypeVar("F", bound=Callable)
 
 
 SYNC_SINGLETON_STMT = """
-class Singleton(factory_type):
+class SingletonFactory(factory_type):
     __slots__ = (
         "__instance",
     )
     
-    def __init__(self, instance: Any) -> None:
+    def __init__(self, instance: return_annotation) -> None:
         self.__instance = instance
     
     def __call__(self) -> return_annotation:
@@ -38,12 +38,12 @@ class Singleton(factory_type):
 
 
 ASYNC_SINGLETON_STMT = """
-class Singleton(factory_type):
+class SingletonFactory(factory_type):
     __slots__ = (
         "__instance",
     )
     
-    def __init__(self, instance: Any) -> None:
+    def __init__(self, instance: return_annotation) -> None:
         self.__instance = instance
     
     async def __call__(self) -> return_annotation:
@@ -66,13 +66,14 @@ def generate_singleton_factory(factory_type: Type[F], instance: Any) -> F:
     if not isinstance(instance, return_annotation):
         message = f"Object '{instance}' must be instance of '{return_annotation}'."
         raise TypeError(factory_type, message) from None
-    globals = {"Any": Any, "factory_type": factory_type, "return_annotation": return_annotation}
+    globals = {"factory_type": factory_type, "return_annotation": return_annotation}
     if iscoroutinefunction(factory_type.__call__):
         singleton_stmt = ASYNC_SINGLETON_STMT
     else:
         singleton_stmt = SYNC_SINGLETON_STMT
     exec(singleton_stmt, globals)
-    singleton_type = cast(type, globals["Singleton"])
-    singleton_type.__call__.__annotations__ = type_hints
+    singleton_type = cast(type, globals["SingletonFactory"])
+    getattr(singleton_type, "__init__").__annotations__ = {"instance": return_annotation}
+    getattr(singleton_type, "__call__").__annotations__ = type_hints
     singleton = singleton_type(instance)
     return singleton

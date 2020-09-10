@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Iterator,
     Dict,
+    final,
 )
 from ..util import (
     check_factory_type,
@@ -13,7 +14,7 @@ from ..core import (
     FactoryStorage,
 )
 from ..context import (
-    FactoryStorageContextManagerImpl,
+    FactoryStorageContextManager,
 )
 
 
@@ -25,7 +26,8 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
-class DictFactoryStorage(FactoryStorageContextManagerImpl, FactoryStorage):
+@final
+class DictFactoryStorage(FactoryStorageContextManager, FactoryStorage):
     __slots__ = (
         "__factories",
     )

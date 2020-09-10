@@ -3,6 +3,7 @@ from typing import (
     Optional,
     Any,
     Callable,
+    ContextManager,
     Tuple,
     Type,
     Literal,
@@ -34,7 +35,6 @@ __all__ = [
     "FactoryStorageSetException",
     "FactoryStorageNotSetException",
     "FactoryStorageContextManager",
-    "FactoryStorageContextManagerImpl",
     "get_factory_storage",
     "get_factory",
     "set_factory",
@@ -57,22 +57,7 @@ class FactoryStorageSetException(Exception):
     pass
 
 
-class FactoryStorageContextManager:
-    __slots__ = ()
-
-    def __enter__(self) -> FactoryStorage:
-        raise NotImplementedError()
-
-    def __exit__(
-        self,
-        exception_type: Optional[Type[BaseException]],
-        exception: Optional[BaseException],
-        traceback: TracebackType,
-    ) -> Optional[bool]:
-        raise NotImplementedError()
-
-
-class FactoryStorageContextManagerImpl(FactoryStorageContextManager):
+class FactoryStorageContextManager(ContextManager[FactoryStorage]):
     __slots__ = (
         "__storage",
         "__token",
@@ -98,7 +83,7 @@ class FactoryStorageContextManagerImpl(FactoryStorageContextManager):
         self,
         exception_type: Optional[Type[BaseException]],
         exception: Optional[BaseException],
-        traceback: TracebackType,
+        traceback: Optional[TracebackType],
     ) -> Literal[False]:
         if self.__token is not None:
             factory_storage_var.reset(self.__token)

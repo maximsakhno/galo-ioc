@@ -104,7 +104,8 @@ def generate_typed_factory_wrapper(factory_type: Type[F], wrappee: Callable[...,
     exec(typed_factory_wrapper_stmt, globals)
     wrapper_factory_type = cast(type, globals["WrapperFactory"])
     type_hints = get_type_hints(factory_type.__call__)
-    wrapper_factory_type.__call__.__annotations__ = type_hints
+    getattr(wrapper_factory_type, "__init__").__annotations__ = {"wrappee": Callable[..., Any]}
+    getattr(wrapper_factory_type, "__call__").__annotations__ = type_hints
     typed_factory_wrapper = wrapper_factory_type(wrappee)
     return typed_factory_wrapper
 
