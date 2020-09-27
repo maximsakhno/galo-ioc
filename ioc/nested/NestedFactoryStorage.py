@@ -8,10 +8,8 @@ from typing import (
 from itertools import (
     chain,
 )
-from ..core import (
-    Key,
-    FactoryStorage,
-)
+from ..Key import Key
+from ..FactoryStorage import FactoryStorage
 
 
 __all__ = [

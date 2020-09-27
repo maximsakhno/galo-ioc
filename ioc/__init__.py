@@ -1,9 +1,7 @@
-from .core import *
 from .context import *
-from .dict_factory_storage import *
-from .nested_factory_storage import *
-from .singleton_factory import *
-from .function_factory import *
-
-
-__version__ = "0.7.1"
+from .dict import *
+from .nested import *
+from .singleton import *
+from .function import *
+from .Key import Key
+from .FactoryStorage import FactoryStorage

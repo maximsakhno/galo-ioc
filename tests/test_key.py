@@ -1,3 +1,4 @@
+import pytest
 from ioc import (
     Key,
 )
@@ -42,3 +43,12 @@ def test_hash() -> None:
     key2 = Key(SomeFactory, "1")
 
     assert hash(key1) == hash(key2)
+
+
+def test_singleton() -> None:
+    assert Key(SomeFactory, "id") is Key(SomeFactory, "id")
+
+
+def test_not_hashable_id() -> None:
+    with pytest.raises(TypeError):
+        Key(SomeFactory, [])

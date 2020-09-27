@@ -9,13 +9,11 @@ from typing import (
 from ..util import (
     check_factory_type,
 )
-from ..core import (
-    Key,
-    FactoryStorage,
-)
 from ..context import (
     FactoryStorageContextManager,
 )
+from ..Key import Key
+from ..FactoryStorage import FactoryStorage
 
 
 __all__ = [

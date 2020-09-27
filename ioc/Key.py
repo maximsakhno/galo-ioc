@@ -1,8 +1,13 @@
+from __future__ import (
+    annotations,
+)
 from typing import (
     TypeVar,
     Generic,
     Any,
     Callable,
+    Tuple,
+    Dict,
     Type,
     final,
 )
@@ -16,18 +21,28 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
+class KeyMeta(type):
+    __slots__ = ()
+
+    __INSTANCES: Dict[Tuple[Type[Any], Any], Key[Any]] = {}
+
+    def __call__(cls, factory_type: Type[Any], id: Any = "") -> Key[Any]:  # type: ignore
+        instance_key = (factory_type, id)
+        try:
+            return cls.__INSTANCES[instance_key]
+        except KeyError:
+            cls.__INSTANCES[instance_key] = super().__call__(factory_type, id)
+            return cls.__INSTANCES[instance_key]
+
+
 @final
-class Key(Generic[F]):
+class Key(Generic[F], metaclass=KeyMeta):
     __slots__ = (
         "__factory_type",
         "__id",
     )
 
-    def __init__(
-        self,
-        factory_type: Type[F],
-        id: str = "",
-    ) -> None:
+    def __init__(self, factory_type: Type[F], id: Any = "") -> None:
         self.__factory_type = factory_type
         self.__id = id
 
@@ -36,7 +51,7 @@ class Key(Generic[F]):
         return self.__factory_type
 
     @property
-    def id(self) -> str:
+    def id(self) -> Any:
         return self.__id
 
     def __eq__(self, other: Any) -> bool:

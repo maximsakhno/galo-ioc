@@ -22,13 +22,11 @@ from ..util import (
     lru_cache,
     generate_typed_factory_wrapper,
 )
-from ..core import (
-    Key,
-    FactoryStorage,
-)
-from ..nested_factory_storage import (
+from ..nested import (
     NestedFactoryStorage,
 )
+from ..Key import Key
+from ..FactoryStorage import FactoryStorage
 
 
 __all__ = [
