@@ -2,9 +2,6 @@ from setuptools import (
     setup,
     find_packages,
 )
-from ioc import (
-    __version__,
-)
 
 
 install_requires = [
