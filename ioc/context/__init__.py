@@ -85,6 +85,7 @@ class FactoryStorageContextManager(ContextManager[FactoryStorage]):
     ) -> Literal[False]:
         if self.__token is not None:
             factory_storage_var.reset(self.__token)
+            self.__token = None
         return False
 
 
