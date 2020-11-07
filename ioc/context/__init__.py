@@ -3,10 +3,9 @@ from typing import (
     Optional,
     Any,
     Callable,
-    ContextManager,
     Tuple,
+    List,
     Type,
-    Literal,
 )
 from types import (
     TracebackType,
@@ -30,7 +29,6 @@ from ..FactoryStorage import FactoryStorage
 
 
 __all__ = [
-    "FactoryStorageSetException",
     "FactoryStorageNotSetException",
     "FactoryStorageContextManager",
     "get_factory_storage",
@@ -51,33 +49,24 @@ class FactoryStorageNotSetException(Exception):
     pass
 
 
-class FactoryStorageSetException(Exception):
-    pass
-
-
-class FactoryStorageContextManager(ContextManager[FactoryStorage]):
+class FactoryStorageContextManager:
     __slots__ = (
         "__storage",
-        "__token",
+        "__tokens",
     )
 
     def __init__(self, storage: FactoryStorage) -> None:
         self.__storage = storage
-        self.__token: Optional[Token[FactoryStorage]] = None
+        self.__tokens: List[Token[Optional[FactoryStorage]]] = []
 
     def __enter__(self) -> FactoryStorage:
-        if self.__token is not None:
-            if factory_storage_var.get() is self.__storage:
-                return self.__storage
-            else:
-                raise FactoryStorageSetException() from None
         try:
             storage = factory_storage_var.get()
         except LookupError:
             storage = self.__storage
         else:
             storage = NestedFactoryStorage(self.__storage, storage)
-        self.__token = factory_storage_var.set(storage)
+        self.__tokens.append(factory_storage_var.set(storage))
         return storage
 
     def __exit__(
@@ -85,11 +74,8 @@ class FactoryStorageContextManager(ContextManager[FactoryStorage]):
         exception_type: Optional[Type[BaseException]],
         exception: Optional[BaseException],
         traceback: Optional[TracebackType],
-    ) -> Literal[False]:
-        if self.__token is not None:
-            factory_storage_var.reset(self.__token)
-            self.__token = None
-        return False
+    ) -> None:
+        factory_storage_var.reset(self.__tokens.pop())
 
 
 def get_factory_storage() -> FactoryStorage:

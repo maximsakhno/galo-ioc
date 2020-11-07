@@ -1,9 +1,9 @@
 import pytest
 from ioc import (
-    FactoryStorageSetException,
     FactoryStorageNotSetException,
     Key,
     DictFactoryStorage,
+    get_factory_storage,
     get_factory,
     use_factory,
 )
@@ -47,15 +47,28 @@ def test_entering_to_the_context_twice() -> None:
     storage1 = DictFactoryStorage()
     storage2 = DictFactoryStorage()
 
-    with storage1:
-        with storage1:
-            pass
+    storage1[Key(SomeFactory)] = SomeFactoryStub(1)
+    storage2[Key(SomeFactory)] = SomeFactoryStub(2)
+
+    some_factory = get_factory(Key(SomeFactory))
 
     with storage1:
+        assert some_factory() == 1
+        with storage1:
+            assert some_factory() == 1
+            with storage2:
+                assert some_factory() == 2
+            assert some_factory() == 1
+        assert some_factory() == 1
+
+    with storage1:
+        assert some_factory() == 1
         with storage2:
-            with pytest.raises(FactoryStorageSetException):
-                with storage1:
-                    pass
+            assert some_factory() == 2
+            with storage1:
+                assert some_factory() == 1
+            assert some_factory() == 2
+        assert some_factory() == 1
 
 
 def test_calling_factory_proxy_inside_different_factory_storage_contexts() -> None:
