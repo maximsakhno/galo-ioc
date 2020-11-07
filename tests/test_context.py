@@ -44,11 +44,18 @@ def test_calling_factory_proxy_inside_factory_storage_context() -> None:
 
 
 def test_entering_to_the_context_twice() -> None:
-    storage = DictFactoryStorage()
-    with storage:
-        with pytest.raises(FactoryStorageSetException):
-            with storage:
-                pass
+    storage1 = DictFactoryStorage()
+    storage2 = DictFactoryStorage()
+
+    with storage1:
+        with storage1:
+            pass
+
+    with storage1:
+        with storage2:
+            with pytest.raises(FactoryStorageSetException):
+                with storage1:
+                    pass
 
 
 def test_calling_factory_proxy_inside_different_factory_storage_contexts() -> None:

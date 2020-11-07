@@ -67,7 +67,10 @@ class FactoryStorageContextManager(ContextManager[FactoryStorage]):
 
     def __enter__(self) -> FactoryStorage:
         if self.__token is not None:
-            raise FactoryStorageSetException() from None
+            if factory_storage_var.get() is self.__storage:
+                return self.__storage
+            else:
+                raise FactoryStorageSetException() from None
         try:
             storage = factory_storage_var.get()
         except LookupError:
