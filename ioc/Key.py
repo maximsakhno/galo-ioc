@@ -5,7 +5,6 @@ from typing import (
     Any,
     Callable,
     Type,
-    final,
 )
 
 
@@ -17,13 +16,7 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
-@final
 class Key(Generic[F]):
-    __slots__ = (
-        "__factory_type",
-        "__id",
-    )
-
     def __init__(self, factory_type: Type[F], id: Optional[Any] = None) -> None:
         self.__factory_type = factory_type
         self.__id = id
@@ -45,6 +38,10 @@ class Key(Generic[F]):
         return hash((self.__factory_type, self.__id))
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(" \
-               f"factory_type={self.__factory_type!r}, " \
-               f"id={self.__id!r})"
+        if self.__id is None:
+            return f"{self.__class__.__name__}(" \
+                   f"factory_type={self.__factory_type!r})"
+        else:
+            return f"{self.__class__.__name__}(" \
+                   f"factory_type={self.__factory_type!r}, " \
+                   f"id={self.__id!r})"

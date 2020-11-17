@@ -4,7 +4,6 @@ from typing import (
     Callable,
     Iterator,
     Dict,
-    final,
 )
 from ..util import (
     check_factory_type,
@@ -24,12 +23,7 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
-@final
 class DictFactoryStorage(FactoryStorageContextManager, FactoryStorage):
-    __slots__ = (
-        "__factories",
-    )
-
     def __init__(self) -> None:
         super().__init__(self)
         self.__factories: Dict[Key[Any], Any] = {}
@@ -38,12 +32,13 @@ class DictFactoryStorage(FactoryStorageContextManager, FactoryStorage):
         return self.__factories[key]
 
     def __setitem__(self, key: Key[F], factory: F) -> None:
-        check_factory_type(key.factory_type)
-        if not isinstance(factory, key.factory_type):
-            raise TypeError(factory, key.factory_type)
+        factory_type = key.factory_type
+        check_factory_type(factory_type)
+        if not isinstance(factory, factory_type):
+            raise TypeError(f"Factory '{factory}' must be instance of '{factory_type}'.") from None
         self.__factories[key] = factory
 
-    def __delitem__(self, key: Key[F]) -> None:
+    def __delitem__(self, key: Key[Any]) -> None:
         self.__factories.pop(key, None)
 
     def __contains__(self, key: Key[Any]) -> bool:

@@ -1,11 +1,13 @@
 from typing import (
+    Generic,
     TypeVar,
-    Optional,
     Any,
+    Optional,
     Callable,
     Tuple,
     List,
     Type,
+    cast,
 )
 from types import (
     TracebackType,
@@ -17,9 +19,12 @@ from contextvars import (
     Token,
     ContextVar,
 )
+from asyncio import (
+    iscoroutinefunction,
+)
 from ..util import (
     lru_cache,
-    generate_typed_factory_wrapper,
+    check_factory_type,
 )
 from ..nested import (
     NestedFactoryStorage,
@@ -31,10 +36,13 @@ from ..FactoryStorage import FactoryStorage
 __all__ = [
     "FactoryStorageNotSetException",
     "FactoryStorageContextManager",
+    "GetsFactory",
+    "SetsFactory",
     "get_factory_storage",
+    "get_factory_getter",
+    "get_factory_setter",
     "get_factory",
     "set_factory",
-    "get_factory_setter",
     "use_factory",
 ]
 
@@ -42,22 +50,17 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
-factory_storage_var: ContextVar[FactoryStorage] = ContextVar(str(uuid4()))
-
-
 class FactoryStorageNotSetException(Exception):
     pass
 
 
-class FactoryStorageContextManager:
-    __slots__ = (
-        "__storage",
-        "__tokens",
-    )
+factory_storage_var: ContextVar[FactoryStorage] = ContextVar(str(uuid4()))
 
+
+class FactoryStorageContextManager:
     def __init__(self, storage: FactoryStorage) -> None:
         self.__storage = storage
-        self.__tokens: List[Token[Optional[FactoryStorage]]] = []
+        self.__tokens: List[Token[FactoryStorage]] = []
 
     def __enter__(self) -> FactoryStorage:
         try:
@@ -78,6 +81,18 @@ class FactoryStorageContextManager:
         factory_storage_var.reset(self.__tokens.pop())
 
 
+class GetsFactory(Generic[F]):
+    @property
+    def key(self) -> Key[F]:
+        raise NotImplementedError()
+
+
+class SetsFactory(Generic[F]):
+    @property
+    def key(self) -> Key[F]:
+        raise NotImplementedError()
+
+
 def get_factory_storage() -> FactoryStorage:
     try:
         return factory_storage_var.get()
@@ -86,31 +101,53 @@ def get_factory_storage() -> FactoryStorage:
 
 
 @lru_cache(1024)
-def get_factory(key: Key[F]) -> F:
-    return generate_factory_proxy(key)
+def get_factory_getter(key: Key[F]) -> Callable[[], F]:
+    class FactoryGetter(GetsFactory[F]):
+        @property
+        def key(self) -> Key[F]:
+            return key
 
+        def __call__(self) -> F:
+            return get_factory_storage()[key]
 
-def generate_factory_proxy(key: Key[F]) -> F:
-    def wrappee(*args: Any, **kwargs: Any) -> Any:
-        return get_factory_storage()[key](*args, **kwargs)
-
-    return generate_typed_factory_wrapper(key.factory_type, wrappee)
-
-
-def set_factory(key: Key[F], factory: F) -> None:
-    get_factory_storage()[key] = factory
+    return FactoryGetter()
 
 
 @lru_cache(1024)
 def get_factory_setter(key: Key[F]) -> Callable[[F], None]:
-    return generate_factory_setter(key)
+    class FactorySetter(SetsFactory[F]):
+        @property
+        def key(self) -> Key[F]:
+            return key
+
+        def __call__(self, factory: F) -> None:
+            get_factory_storage()[key] = factory
+
+    return FactorySetter()
 
 
-def generate_factory_setter(key: Key[F]) -> Callable[[F], None]:
-    def factory_setter_proxy(factory: F) -> None:
-        set_factory(key, factory)
+@lru_cache(1024)
+def get_factory(key: Key[F]) -> F:
+    factory_type = key.factory_type
+    check_factory_type(factory_type)
 
-    return factory_setter_proxy
+    class Factory(factory_type, GetsFactory[F]):  # type: ignore
+        @property
+        def key(self) -> Key[F]:
+            return key
+
+        if iscoroutinefunction(factory_type.__call__):
+            async def __call__(self, *args: Any, **kwargs: Any) -> Any:
+                return await get_factory_storage()[key](*args, **kwargs)
+        else:
+            def __call__(self, *args: Any, **kwargs: Any) -> Any:  # type: ignore
+                return get_factory_storage()[key](*args, **kwargs)
+
+    return cast(F, Factory())
+
+
+def set_factory(key: Key[F], factory: F) -> None:
+    get_factory_storage()[key] = factory
 
 
 def use_factory(key: Key[F]) -> Tuple[F, Callable[[F], None]]:

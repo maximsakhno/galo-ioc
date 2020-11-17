@@ -1,26 +1,28 @@
-import pytest
+from pytest import (
+    raises,
+    mark,
+)
 from ioc import (
     FactoryStorageNotSetException,
     Key,
     DictFactoryStorage,
+    GetsFactory,
+    SetsFactory,
     get_factory_storage,
+    get_factory_getter,
+    get_factory_setter,
     get_factory,
+    set_factory,
     use_factory,
 )
 
 
-class SomeFactory:
-    __slots__ = ()
-
+class TestFactory:
     def __call__(self) -> int:
         raise NotImplementedError()
 
 
-class SomeFactoryStub(SomeFactory):
-    __slots__ = (
-        "__value",
-    )
-
+class TestFactoryImpl(TestFactory):
     def __init__(self, value: int) -> None:
         self.__value = value
 
@@ -28,153 +30,151 @@ class SomeFactoryStub(SomeFactory):
         return self.__value
 
 
-def test_calling_factory_proxy_out_of_factory_storage_context() -> None:
-    test_factory = get_factory(Key(SomeFactory))
-    with pytest.raises(FactoryStorageNotSetException):
+def test_get_factory_storage() -> None:
+    factory_storage = DictFactoryStorage()
+    factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
+
+    with raises(FactoryStorageNotSetException):
+        get_factory_storage()
+
+    with factory_storage:
+        assert get_factory_storage()[Key(TestFactory)]() == 1
+
+
+def test_get_factory_getter() -> None:
+    factory_storage = DictFactoryStorage()
+    get_test_factory = get_factory_getter(Key(TestFactory))
+
+    with raises(FactoryStorageNotSetException):
+        get_test_factory()
+
+    with factory_storage:
+        with raises(KeyError):
+            get_test_factory()
+
+        factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
+        test_factory = get_test_factory()
+        assert test_factory() == 1
+
+    assert isinstance(get_test_factory, GetsFactory)
+    assert get_test_factory.key == Key(TestFactory)
+
+
+def test_get_factory_setter() -> None:
+    test_factory = get_factory(Key(TestFactory))
+    set_test_factory = get_factory_setter(Key(TestFactory))
+
+    with raises(FactoryStorageNotSetException):
+        set_test_factory(TestFactoryImpl(1))
+
+    with DictFactoryStorage():
+        set_test_factory(TestFactoryImpl(1))
+        assert test_factory() == 1
+
+    assert isinstance(set_test_factory, SetsFactory)
+    assert set_test_factory.key == Key(TestFactory)
+
+
+def test_get_factory() -> None:
+    factory_storage = DictFactoryStorage()
+    test_factory = get_factory(Key(TestFactory))
+
+    with raises(FactoryStorageNotSetException):
         test_factory()
 
-
-def test_calling_factory_proxy_inside_factory_storage_context() -> None:
-    test_factory, set_test_factory = use_factory(Key(SomeFactory))
-    with DictFactoryStorage():
-        with pytest.raises(KeyError):
+    with factory_storage:
+        with raises(KeyError):
             test_factory()
-        set_test_factory(SomeFactoryStub(42))
-        assert test_factory() == 42
+
+        factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
+        assert test_factory() == 1
+
+    assert isinstance(test_factory, GetsFactory)
+    assert test_factory.key == Key(TestFactory)
 
 
-def test_entering_to_the_context_twice() -> None:
-    storage1 = DictFactoryStorage()
-    storage2 = DictFactoryStorage()
+def test_set_factory() -> None:
+    test_factory = get_factory(Key(TestFactory))
 
-    storage1[Key(SomeFactory)] = SomeFactoryStub(1)
-    storage2[Key(SomeFactory)] = SomeFactoryStub(2)
-
-    some_factory = get_factory(Key(SomeFactory))
-
-    with storage1:
-        assert some_factory() == 1
-        with storage1:
-            assert some_factory() == 1
-            with storage2:
-                assert some_factory() == 2
-            assert some_factory() == 1
-        assert some_factory() == 1
-
-    with storage1:
-        assert some_factory() == 1
-        with storage2:
-            assert some_factory() == 2
-            with storage1:
-                assert some_factory() == 1
-            assert some_factory() == 2
-        assert some_factory() == 1
-
-
-def test_calling_factory_proxy_inside_different_factory_storage_contexts() -> None:
-    test_factory, set_test_factory = use_factory(Key(SomeFactory))
     with DictFactoryStorage():
-        set_test_factory(SomeFactoryStub(42))
+        with raises(KeyError):
+            test_factory()
+
+        set_factory(Key(TestFactory), TestFactoryImpl(1))
+        assert test_factory() == 1
+
+
+def test_proxy_factory_with_different_contexts() -> None:
+    test_factory, set_test_factory = use_factory(Key(TestFactory))
     with DictFactoryStorage():
-        with pytest.raises(KeyError):
+        set_test_factory(TestFactoryImpl(42))
+    with DictFactoryStorage():
+        with raises(KeyError):
             test_factory()
 
 
-def test_nested_factory_storage_context() -> None:
-    test_factory, set_test_factory = use_factory(Key(SomeFactory))
+def test_proxy_factory_with_nested_contexts() -> None:
+    test_factory, set_test_factory = use_factory(Key(TestFactory))
     with DictFactoryStorage():
-        set_test_factory(SomeFactoryStub(1))
+        set_test_factory(TestFactoryImpl(1))
         with DictFactoryStorage():
             assert test_factory() == 1
-            set_test_factory(SomeFactoryStub(2))
+            set_test_factory(TestFactoryImpl(2))
             assert test_factory() == 2
         assert test_factory() == 1
 
 
-def test_different_factory_proxies_with_the_same_factory_type() -> None:
-    test_factory1, set_test_factory1 = use_factory(Key(SomeFactory, "1"))
-    test_factory2, set_test_factory2 = use_factory(Key(SomeFactory, "2"))
+def test_enter_to_context_multiple_times() -> None:
+    storage1 = DictFactoryStorage()
+    storage2 = DictFactoryStorage()
+
+    storage1[Key(TestFactory)] = TestFactoryImpl(1)
+    storage2[Key(TestFactory)] = TestFactoryImpl(2)
+
+    test_factory = get_factory(Key(TestFactory))
+
+    with storage1:
+        assert test_factory() == 1
+        with storage1:
+            assert test_factory() == 1
+            with storage2:
+                assert test_factory() == 2
+            assert test_factory() == 1
+        assert test_factory() == 1
+
+    with storage1:
+        assert test_factory() == 1
+        with storage2:
+            assert test_factory() == 2
+            with storage1:
+                assert test_factory() == 1
+            assert test_factory() == 2
+        assert test_factory() == 1
+
+
+def test_different_proxy_factories_with_the_same_factory_type() -> None:
+    test_factory1, set_test_factory1 = use_factory(Key(TestFactory, "1"))
+    test_factory2, set_test_factory2 = use_factory(Key(TestFactory, "2"))
     with DictFactoryStorage():
-        set_test_factory1(SomeFactoryStub(1))
-        with pytest.raises(KeyError):
+        set_test_factory1(TestFactoryImpl(1))
+        with raises(KeyError):
             test_factory2()
-        set_test_factory2(SomeFactoryStub(2))
+        set_test_factory2(TestFactoryImpl(2))
         assert test_factory1() == 1
         assert test_factory2() == 2
 
 
-def test_factory_with_different_argument_kinds_proxy() -> None:
-    class SomeFactoryWithDifferentArgumentKinds:
-        __slots__ = ()
-
-        def __call__(self, a: int, /, b: int, *, c: int = 3) -> int:
-            raise NotImplementedError()
-
-    class SomeFactoryWithDifferentArgumentKindsStub(SomeFactoryWithDifferentArgumentKinds):
-        __slots__ = ()
-
-        def __call__(self, a: int, /, b: int, *, c: int = 3) -> int:
-            return 42
-
-    test_factory, set_test_factory = use_factory(Key(SomeFactoryWithDifferentArgumentKinds))
-    with DictFactoryStorage():
-        set_test_factory(SomeFactoryWithDifferentArgumentKindsStub())
-        assert test_factory(1, 2) == 42
-
-
-def test_factory_with_variadic_arguments_proxy() -> None:
-    class SomeFactoryWithVariadicArguments:
-        __slots__ = ()
-
-        def __call__(self, *args: int, **kwargs: int) -> int:
-            raise NotImplementedError()
-
-    class SomeFactoryWithVariadicArgumentsStub(SomeFactoryWithVariadicArguments):
-        __slots__ = ()
-
-        def __call__(self, *args: int, **kwargs: int) -> int:
-            return 42
-
-    test_factory, set_test_factory = use_factory(Key(SomeFactoryWithVariadicArguments))
-    with DictFactoryStorage():
-        set_test_factory(SomeFactoryWithVariadicArgumentsStub())
-        assert test_factory(1, b=2) == 42
-
-
-def test_factory_with_positional_only_arguments_proxy() -> None:
-    class SomeFactoryWithPositionalOnlyArguments:
-        __slots__ = ()
-
-        def __call__(self, a: int, /) -> int:
-            raise NotImplementedError()
-
-    class SomeFactoryWithPositionalOnlyArgumentsStub(SomeFactoryWithPositionalOnlyArguments):
-        __slots__ = ()
-
-        def __call__(self, a: int, /) -> int:
-            return 42
-
-    test_factory, set_test_factory = use_factory(Key(SomeFactoryWithPositionalOnlyArguments))
-    with DictFactoryStorage():
-        set_test_factory(SomeFactoryWithPositionalOnlyArgumentsStub())
-        assert test_factory(1) == 42
-
-
-@pytest.mark.asyncio
-async def test_async_factory_proxy() -> None:
-    class SomeAsyncFactory:
-        __slots__ = ()
-
+@mark.asyncio
+async def test_async_proxy_factory() -> None:
+    class AsyncTestFactory:
         async def __call__(self) -> int:
             raise NotImplementedError()
 
-    class SomeAsyncFactoryStub(SomeAsyncFactory):
-        __slots__ = ()
-
+    class AsyncTestFactoryImpl(AsyncTestFactory):
         async def __call__(self) -> int:
             return 42
 
-    test_factory, set_test_factory = use_factory(Key(SomeAsyncFactory))
+    test_factory, set_test_factory = use_factory(Key(AsyncTestFactory))
     with DictFactoryStorage():
-        set_test_factory(SomeAsyncFactoryStub())
+        set_test_factory(AsyncTestFactoryImpl())
         assert await test_factory() == 42

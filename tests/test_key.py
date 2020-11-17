@@ -1,37 +1,32 @@
-import pytest
 from ioc import (
     Key,
 )
 
 
-class SomeFactory:
-    __slots__ = ()
-
+class TestFactory:
     def __call__(self) -> int:
         raise NotImplementedError()
 
 
 def test_factory_type_property() -> None:
-    key = Key(SomeFactory)
-    assert key.factory_type == SomeFactory
+    key = Key(TestFactory)
+    assert key.factory_type == TestFactory
 
 
 def test_id_property() -> None:
-    key = Key(SomeFactory, "1")
+    key = Key(TestFactory, "1")
     assert key.id == "1"
 
 
 def test_eq() -> None:
-    class SomeAnotherFactory:
-        __slots__ = ()
-
+    class AnotherTestFactory:
         def __call__(self) -> int:
             raise NotImplementedError()
 
-    key1 = Key(SomeFactory, "1")
-    key2 = Key(SomeFactory, "1")
-    key3 = Key(SomeFactory, "2")
-    key4 = Key(SomeAnotherFactory, "1")
+    key1 = Key(TestFactory, "1")
+    key2 = Key(TestFactory, "1")
+    key3 = Key(TestFactory, "2")
+    key4 = Key(AnotherTestFactory, "1")
 
     assert key1 == key2
     assert key1 != key3
@@ -39,7 +34,7 @@ def test_eq() -> None:
 
 
 def test_hash() -> None:
-    key1 = Key(SomeFactory, "1")
-    key2 = Key(SomeFactory, "1")
+    key1 = Key(TestFactory, "1")
+    key2 = Key(TestFactory, "1")
 
     assert hash(key1) == hash(key2)

@@ -24,7 +24,7 @@ class FactoryStorage:
     def __setitem__(self, key: Key[F], factory: F) -> None:
         raise NotImplementedError()
 
-    def __delitem__(self, key: Key[F]) -> None:
+    def __delitem__(self, key: Key[Any]) -> None:
         raise NotImplementedError()
 
     def __contains__(self, key: Key[Any]) -> bool:
