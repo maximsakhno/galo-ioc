@@ -22,8 +22,10 @@ from contextvars import (
 from asyncio import (
     iscoroutinefunction,
 )
-from ..util import (
+from functools import (
     lru_cache,
+)
+from ..util import (
     check_factory_type,
 )
 from ..nested import (
@@ -100,7 +102,7 @@ def get_factory_storage() -> FactoryStorage:
         raise FactoryStorageNotSetException() from None
 
 
-@lru_cache(1024)
+@lru_cache
 def get_factory_getter(key: Key[F]) -> Callable[[], F]:
     class FactoryGetter(GetsFactory[F]):
         @property
@@ -113,7 +115,7 @@ def get_factory_getter(key: Key[F]) -> Callable[[], F]:
     return FactoryGetter()
 
 
-@lru_cache(1024)
+@lru_cache
 def get_factory_setter(key: Key[F]) -> Callable[[F], None]:
     class FactorySetter(SetsFactory[F]):
         @property
@@ -126,12 +128,12 @@ def get_factory_setter(key: Key[F]) -> Callable[[F], None]:
     return FactorySetter()
 
 
-@lru_cache(1024)
+@lru_cache
 def get_factory(key: Key[F]) -> F:
     factory_type = key.factory_type
     check_factory_type(factory_type)
 
-    class Factory(factory_type, GetsFactory[F]):  # type: ignore
+    class Factory(factory_type, GetsFactory[F]):
         @property
         def key(self) -> Key[F]:
             return key
@@ -140,7 +142,7 @@ def get_factory(key: Key[F]) -> F:
             async def __call__(self, *args: Any, **kwargs: Any) -> Any:
                 return await get_factory_storage()[key](*args, **kwargs)
         else:
-            def __call__(self, *args: Any, **kwargs: Any) -> Any:  # type: ignore
+            def __call__(self, *args: Any, **kwargs: Any) -> Any:
                 return get_factory_storage()[key](*args, **kwargs)
 
     return cast(F, Factory())

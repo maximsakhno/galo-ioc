@@ -77,7 +77,7 @@ def test_setitem_using_non_callable_factory() -> None:
 
     storage = DictFactoryStorage()
     with raises(TypeError):
-        storage[Key(NoNCallableFactory)] = NoNCallableFactory()  # type: ignore
+        storage[Key(NoNCallableFactory)] = NoNCallableFactory()
 
 
 def test_setitem_using_factory_with_different_type() -> None:
@@ -87,4 +87,4 @@ def test_setitem_using_factory_with_different_type() -> None:
 
     storage = DictFactoryStorage()
     with raises(TypeError):
-        storage[Key(TestFactory)] = NotSubClassTestFactory()  # type: ignore
+        storage[Key(TestFactory)] = NotSubClassTestFactory()
