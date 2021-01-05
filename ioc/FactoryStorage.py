@@ -16,8 +16,6 @@ F = TypeVar("F", bound=Callable)
 
 
 class FactoryStorage:
-    __slots__ = ()
-
     def __getitem__(self, key: Key[F]) -> F:
         raise NotImplementedError()
 
