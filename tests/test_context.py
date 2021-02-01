@@ -6,8 +6,6 @@ from ioc import (
     FactoryStorageNotSetException,
     Key,
     DictFactoryStorage,
-    GetsFactory,
-    SetsFactory,
     get_factory_storage,
     get_factory_getter,
     get_factory_setter,
@@ -56,9 +54,6 @@ def test_get_factory_getter() -> None:
         test_factory = get_test_factory()
         assert test_factory() == 1
 
-    assert isinstance(get_test_factory, GetsFactory)
-    assert get_test_factory.key == Key(TestFactory)
-
 
 def test_get_factory_setter() -> None:
     test_factory = get_factory(Key(TestFactory))
@@ -70,9 +65,6 @@ def test_get_factory_setter() -> None:
     with DictFactoryStorage():
         set_test_factory(TestFactoryImpl(1))
         assert test_factory() == 1
-
-    assert isinstance(set_test_factory, SetsFactory)
-    assert set_test_factory.key == Key(TestFactory)
 
 
 def test_get_factory() -> None:
@@ -88,9 +80,6 @@ def test_get_factory() -> None:
 
         factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
         assert test_factory() == 1
-
-    assert isinstance(test_factory, GetsFactory)
-    assert test_factory.key == Key(TestFactory)
 
 
 def test_set_factory() -> None:
@@ -155,6 +144,7 @@ def test_enter_to_context_multiple_times() -> None:
 def test_different_proxy_factories_with_the_same_factory_type() -> None:
     test_factory1, set_test_factory1 = use_factory(Key(TestFactory, "1"))
     test_factory2, set_test_factory2 = use_factory(Key(TestFactory, "2"))
+
     with DictFactoryStorage():
         set_test_factory1(TestFactoryImpl(1))
         with raises(KeyError):
