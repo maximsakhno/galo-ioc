@@ -1,5 +1,4 @@
 from typing import (
-    Generic,
     TypeVar,
     Any,
     Optional,
@@ -21,6 +20,10 @@ from contextvars import (
 from functools import (
     lru_cache,
 )
+from value_accessors import (
+    GetValueFunction,
+    SetValueFunction,
+)
 from ..util import (
     check_factory_type,
 )
@@ -32,12 +35,10 @@ from ..FactoryStorage import FactoryStorage
 
 
 __all__ = [
-    "FactoryStorageNotSetException",
+    "FactoryStorageNotFoundException",
     "FactoryStorageContextManager",
     "get_factory_storage",
-    "GetFactoryFunction",
     "get_factory_getter",
-    "SetFactoryFunction",
     "get_factory_setter",
     "get_factory",
     "set_factory",
@@ -48,7 +49,7 @@ __all__ = [
 F = TypeVar("F", bound=Callable)
 
 
-class FactoryStorageNotSetException(Exception):
+class FactoryStorageNotFoundException(Exception):
     pass
 
 
@@ -83,37 +84,27 @@ def get_factory_storage() -> FactoryStorage:
     try:
         return factory_storage_var.get()
     except LookupError:
-        raise FactoryStorageNotSetException() from None
-
-
-class GetFactoryFunction(Generic[F]):
-    def __call__(self) -> F:
-        raise NotImplementedError()
+        raise FactoryStorageNotFoundException() from None
 
 
 @lru_cache
-def get_factory_getter(key: Key[F]) -> GetFactoryFunction[F]:
-    class GetFactoryFunctionImpl(GetFactoryFunction[F]):
+def get_factory_getter(key: Key[F]) -> GetValueFunction[F]:
+    class GetFactoryFunction(GetValueFunction[F]):
         def __call__(self) -> F:
             factory_storage = get_factory_storage()
             return factory_storage[key]
 
-    return GetFactoryFunctionImpl()
-
-
-class SetFactoryFunction(Generic[F]):
-    def __call__(self, factory: F) -> None:
-        raise NotImplementedError()
+    return GetFactoryFunction()
 
 
 @lru_cache
-def get_factory_setter(key: Key[F]) -> SetFactoryFunction[F]:
-    class SetFactoryFunctionImpl(SetFactoryFunction[F]):
-        def __call__(self, factory: F) -> None:
+def get_factory_setter(key: Key[F]) -> SetValueFunction[F]:
+    class SetFactoryFunction(SetValueFunction[F]):
+        def __call__(self, factory: F, /) -> None:
             factory_storage = get_factory_storage()
             factory_storage[key] = factory
 
-    return SetFactoryFunctionImpl()
+    return SetFactoryFunction()
 
 
 @lru_cache
@@ -134,5 +125,5 @@ def set_factory(key: Key[F], factory: F) -> None:
     get_factory_storage()[key] = factory
 
 
-def use_factory(key: Key[F]) -> Tuple[F, SetFactoryFunction[F]]:
+def use_factory(key: Key[F]) -> Tuple[F, SetValueFunction[F]]:
     return get_factory(key), get_factory_setter(key)

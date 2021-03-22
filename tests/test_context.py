@@ -3,7 +3,7 @@ from pytest import (
     mark,
 )
 from ioc import (
-    FactoryStorageNotSetException,
+    FactoryStorageNotFoundException,
     Key,
     DictFactoryStorage,
     get_factory_storage,
@@ -32,7 +32,7 @@ def test_get_factory_storage() -> None:
     factory_storage = DictFactoryStorage()
     factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
 
-    with raises(FactoryStorageNotSetException):
+    with raises(FactoryStorageNotFoundException):
         get_factory_storage()
 
     with factory_storage:
@@ -43,7 +43,7 @@ def test_get_factory_getter() -> None:
     factory_storage = DictFactoryStorage()
     get_test_factory = get_factory_getter(Key(TestFactory))
 
-    with raises(FactoryStorageNotSetException):
+    with raises(FactoryStorageNotFoundException):
         get_test_factory()
 
     with factory_storage:
@@ -59,7 +59,7 @@ def test_get_factory_setter() -> None:
     test_factory = get_factory(Key(TestFactory))
     set_test_factory = get_factory_setter(Key(TestFactory))
 
-    with raises(FactoryStorageNotSetException):
+    with raises(FactoryStorageNotFoundException):
         set_test_factory(TestFactoryImpl(1))
 
     with DictFactoryStorage():
@@ -71,7 +71,7 @@ def test_get_factory() -> None:
     factory_storage = DictFactoryStorage()
     test_factory = get_factory(Key(TestFactory))
 
-    with raises(FactoryStorageNotSetException):
+    with raises(FactoryStorageNotFoundException):
         test_factory()
 
     with factory_storage:

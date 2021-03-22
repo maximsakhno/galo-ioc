@@ -11,6 +11,8 @@ install_requires = [
 
 prod_requires = [
     *install_requires,
+    "shared_var @ git+ssh://git@git.iqtek.ru/libs/shared_var.git@version/0.2.0",
+    "value_accessors @ git+ssh://git@git.iqtek.ru/libs/value_accessors.git@version/0.2.0",
 ]
 
 
