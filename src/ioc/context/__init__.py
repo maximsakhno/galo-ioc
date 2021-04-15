@@ -1,8 +1,6 @@
 from typing import (
-    TypeVar,
     Any,
     Optional,
-    Callable,
     Tuple,
     List,
     Type,
@@ -24,6 +22,9 @@ from value_accessors import (
     GetValueFunction,
     SetValueFunction,
 )
+from ..types import (
+    F,
+)
 from ..util import (
     check_factory_type,
 )
@@ -44,9 +45,6 @@ __all__ = [
     "set_factory",
     "use_factory",
 ]
-
-
-F = TypeVar("F", bound=Callable)
 
 
 class FactoryStorageNotFoundException(Exception):

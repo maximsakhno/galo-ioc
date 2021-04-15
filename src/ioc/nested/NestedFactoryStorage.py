@@ -1,11 +1,11 @@
 from typing import (
-    TypeVar,
-    Any,
-    Callable,
     Iterator,
 )
 from itertools import (
     chain,
+)
+from ..types import (
+    F,
 )
 from ..Key import Key
 from ..FactoryStorage import FactoryStorage
@@ -14,9 +14,6 @@ from ..FactoryStorage import FactoryStorage
 __all__ = [
     "NestedFactoryStorage",
 ]
-
-
-F = TypeVar("F", bound=Callable)
 
 
 class NestedFactoryStorage(FactoryStorage):
@@ -33,16 +30,16 @@ class NestedFactoryStorage(FactoryStorage):
     def __setitem__(self, key: Key[F], factory: F) -> None:
         self.__nested[key] = factory
 
-    def __delitem__(self, key: Key[Any]) -> None:
+    def __delitem__(self, key: Key) -> None:
         del self.__nested[key]
 
-    def __contains__(self, key: Key[Any]) -> bool:
+    def __contains__(self, key: Key) -> bool:
         return key in self.__nested or key in self.__parent
 
     def __len__(self) -> int:
         return len(set(chain(self.__nested, self.__parent)))
 
-    def __iter__(self) -> Iterator[Key[Any]]:
+    def __iter__(self) -> Iterator[Key]:
         return iter(set(chain(self.__nested, self.__parent)))
 
     def __bool__(self) -> bool:

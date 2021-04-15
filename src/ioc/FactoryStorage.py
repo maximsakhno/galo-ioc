@@ -1,8 +1,8 @@
 from typing import (
-    TypeVar,
-    Any,
-    Callable,
     Iterator,
+)
+from .types import (
+    F,
 )
 from .Key import Key
 
@@ -12,9 +12,6 @@ __all__ = [
 ]
 
 
-F = TypeVar("F", bound=Callable)
-
-
 class FactoryStorage:
     def __getitem__(self, key: Key[F]) -> F:
         raise NotImplementedError()
@@ -22,16 +19,16 @@ class FactoryStorage:
     def __setitem__(self, key: Key[F], factory: F) -> None:
         raise NotImplementedError()
 
-    def __delitem__(self, key: Key[Any]) -> None:
+    def __delitem__(self, key: Key) -> None:
         raise NotImplementedError()
 
-    def __contains__(self, key: Key[Any]) -> bool:
+    def __contains__(self, key: Key) -> bool:
         raise NotImplementedError()
 
     def __len__(self) -> int:
         raise NotImplementedError()
 
-    def __iter__(self) -> Iterator[Key[Any]]:
+    def __iter__(self) -> Iterator[Key]:
         raise NotImplementedError()
 
     def __bool__(self) -> bool:
