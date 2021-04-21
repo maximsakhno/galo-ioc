@@ -4,6 +4,7 @@ from typing import (
     Tuple,
     List,
     Type,
+    Callable,
 )
 from types import (
     TracebackType,
@@ -17,10 +18,6 @@ from contextvars import (
 )
 from functools import (
     lru_cache,
-)
-from value_accessors import (
-    GetValueFunction,
-    SetValueFunction,
 )
 from ..types import (
     F,
@@ -86,23 +83,21 @@ def get_factory_storage() -> FactoryStorage:
 
 
 @lru_cache
-def get_factory_getter(key: Key[F]) -> GetValueFunction[F]:
-    class GetFactoryFunction(GetValueFunction[F]):
-        def __call__(self) -> F:
-            factory_storage = get_factory_storage()
-            return factory_storage[key]
+def get_factory_getter(key: Key[F]) -> Callable[[], F]:
+    def get_factory() -> F:
+        factory_storage = get_factory_storage()
+        return factory_storage[key]
 
-    return GetFactoryFunction()
+    return get_factory
 
 
 @lru_cache
-def get_factory_setter(key: Key[F]) -> SetValueFunction[F]:
-    class SetFactoryFunction(SetValueFunction[F]):
-        def __call__(self, factory: F, /) -> None:
-            factory_storage = get_factory_storage()
-            factory_storage[key] = factory
+def get_factory_setter(key: Key[F]) -> Callable[[F], None]:
+    def set_factory(factory: F) -> None:
+        factory_storage = get_factory_storage()
+        factory_storage[key] = factory
 
-    return SetFactoryFunction()
+    return set_factory
 
 
 @lru_cache
@@ -123,5 +118,5 @@ def set_factory(key: Key[F], factory: F) -> None:
     get_factory_storage()[key] = factory
 
 
-def use_factory(key: Key[F]) -> Tuple[F, SetValueFunction[F]]:
+def use_factory(key: Key[F]) -> Tuple[F, Callable[[F], None]]:
     return get_factory(key), get_factory_setter(key)
