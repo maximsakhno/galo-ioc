@@ -1,8 +1,8 @@
 from typing import (
     TypeVar,
-    Generic,
     Optional,
     Any,
+    Tuple,
     Type,
 )
 from .types import (
@@ -18,7 +18,7 @@ __all__ = [
 K = TypeVar("K")
 
 
-class Key(tuple, Generic[F]):
+class Key(Tuple[Type[F], Optional[Any]]):
     def __new__(cls: Type[K], factory_type: Type[F], id: Optional[Any] = None) -> K:
         return super().__new__(cls, (factory_type, id))
 
