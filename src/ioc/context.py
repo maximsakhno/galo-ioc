@@ -19,17 +19,19 @@ from contextvars import (
 from functools import (
     lru_cache,
 )
-from ..types import (
+from .types import (
     F,
 )
-from ..util import (
+from .util import (
     check_factory_type,
 )
-from ..nested import (
+from .interfaces import (
+    Key,
+    FactoryStorage,
+)
+from .nested import (
     NestedFactoryStorage,
 )
-from ..Key import Key
-from ..FactoryStorage import FactoryStorage
 
 
 __all__ = [

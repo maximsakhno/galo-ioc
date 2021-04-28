@@ -4,11 +4,13 @@ from typing import (
 from itertools import (
     chain,
 )
-from ..types import (
+from .types import (
     F,
 )
-from ..Key import Key
-from ..FactoryStorage import FactoryStorage
+from .interfaces import (
+    Key,
+    FactoryStorage,
+)
 
 
 __all__ = [

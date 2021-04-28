@@ -3,17 +3,19 @@ from typing import (
     Iterator,
     Dict,
 )
-from ..types import (
+from .types import (
     F,
 )
-from ..util import (
+from .util import (
     check_factory_type,
 )
-from ..context import (
+from .interfaces import (
+    Key,
+    FactoryStorage,
+)
+from .context import (
     FactoryStorageContextManager,
 )
-from ..Key import Key
-from ..FactoryStorage import FactoryStorage
 
 
 __all__ = [
