@@ -33,10 +33,16 @@ class DictFactoryStorage(FactoryStorageContextManager, FactoryStorage):
 
     def __setitem__(self, key: Key[F], factory: F) -> None:
         factory_type = key.factory_type
+        id = key.id
+
         check_factory_type(factory_type)
         if not isinstance(factory, factory_type):
-            raise TypeError(f"Factory '{factory}' must be instance of '{factory_type}'.") from None
-        self.__factories[key] = factory
+            raise TypeError(f"Factory must be instance of factory type: "
+                            f"'{factory}', '{factory_type}'.") from None
+
+        for base_factory_type in factory_type.mro()[:-1]:
+            base_key = Key(base_factory_type, id)
+            self.__factories[base_key] = factory
 
     def __delitem__(self, key: Key) -> None:
         self.__factories.pop(key, None)

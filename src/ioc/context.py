@@ -29,7 +29,7 @@ from .interfaces import (
     Key,
     FactoryStorage,
 )
-from .nested import (
+from .nested_factory_storage import (
     NestedFactoryStorage,
 )
 
