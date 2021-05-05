@@ -35,9 +35,9 @@ def check_factory_type(factory_type: type) -> None:
             required_attribute_names.discard(name)
 
     if illegal_attribute_names:
-        raise TypeError(f"Factory type '{factory_type}' contains "
-                        f"illegal attributes '{illegal_attribute_names}'.") from None
+        raise TypeError(f"Factory type contains illegal attributes: "
+                        f"'{factory_type}', '{illegal_attribute_names}'.")
 
     if required_attribute_names:
-        raise TypeError(f"Factory type '{factory_type}' does not contains "
-                        f"required attributes '{required_attribute_names}'.") from None
+        raise TypeError(f"Factory type does not contains required attributes: "
+                        f"'{factory_type}', '{required_attribute_names}'.")

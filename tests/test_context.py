@@ -1,4 +1,9 @@
+from unittest.mock import (
+    Mock,
+    AsyncMock,
+)
 from pytest import (
+    fixture,
     raises,
     mark,
 )
@@ -13,114 +18,112 @@ from ioc import (
     set_factory,
     use_factory,
 )
+from util import (
+    FactoryForTest,
+)
 
 
-class TestFactory:
-    def __call__(self) -> int:
-        raise NotImplementedError()
+@fixture
+def factory_storage() -> DictFactoryStorage:
+    return DictFactoryStorage()
 
 
-class TestFactoryImpl(TestFactory):
-    def __init__(self, value: int) -> None:
-        self.__value = value
-
-    def __call__(self) -> int:
-        return self.__value
-
-
-def test_get_factory_storage() -> None:
-    factory_storage = DictFactoryStorage()
-    factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
+def test_get_factory_storage(factory_storage: DictFactoryStorage) -> None:
+    factory_for_test = Mock(FactoryForTest)
+    factory_storage[Key(FactoryForTest)] = factory_for_test
 
     with raises(FactoryStorageNotFoundException):
         get_factory_storage()
 
     with factory_storage:
-        assert get_factory_storage()[Key(TestFactory)]() == 1
+        assert get_factory_storage()[Key(FactoryForTest)] is factory_for_test
 
 
-def test_get_factory_getter() -> None:
-    factory_storage = DictFactoryStorage()
-    get_test_factory = get_factory_getter(Key(TestFactory))
+def test_get_factory(factory_storage: DictFactoryStorage) -> None:
+    factory_for_test = Mock(FactoryForTest, return_value=1)
+    proxy_factory_for_test = get_factory(Key(FactoryForTest))
 
     with raises(FactoryStorageNotFoundException):
-        get_test_factory()
+        proxy_factory_for_test()
 
     with factory_storage:
         with raises(KeyError):
-            get_test_factory()
+            proxy_factory_for_test()
 
-        factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
-        test_factory = get_test_factory()
-        assert test_factory() == 1
-
-
-def test_get_factory_setter() -> None:
-    test_factory = get_factory(Key(TestFactory))
-    set_test_factory = get_factory_setter(Key(TestFactory))
-
-    with raises(FactoryStorageNotFoundException):
-        set_test_factory(TestFactoryImpl(1))
-
-    with DictFactoryStorage():
-        set_test_factory(TestFactoryImpl(1))
-        assert test_factory() == 1
+        factory_storage[Key(FactoryForTest)] = factory_for_test
+        assert proxy_factory_for_test() == 1
+        factory_for_test.assert_called_once()
 
 
-def test_get_factory() -> None:
-    factory_storage = DictFactoryStorage()
-    test_factory = get_factory(Key(TestFactory))
+def test_get_factory_getter(factory_storage: DictFactoryStorage) -> None:
+    factory_for_test = Mock(FactoryForTest)
+    get_factory_for_test = get_factory_getter(Key(FactoryForTest))
 
     with raises(FactoryStorageNotFoundException):
-        test_factory()
+        get_factory_for_test()
 
     with factory_storage:
         with raises(KeyError):
-            test_factory()
+            get_factory_for_test()
 
-        factory_storage[Key(TestFactory)] = TestFactoryImpl(1)
-        assert test_factory() == 1
+        factory_storage[Key(FactoryForTest)] = factory_for_test
+        assert get_factory_for_test() is factory_for_test
 
 
 def test_set_factory() -> None:
-    test_factory = get_factory(Key(TestFactory))
+    factory_for_test = Mock(FactoryForTest, return_value=1)
+    proxy_factory_for_test = get_factory(Key(FactoryForTest))
 
     with DictFactoryStorage():
         with raises(KeyError):
-            test_factory()
+            proxy_factory_for_test()
 
-        set_factory(Key(TestFactory), TestFactoryImpl(1))
-        assert test_factory() == 1
+        set_factory(Key(FactoryForTest), factory_for_test)
+        assert proxy_factory_for_test() == 1
+        factory_for_test.assert_called_once()
+
+
+def test_get_factory_setter() -> None:
+    factory_for_test = Mock(FactoryForTest)
+    get_factory_for_test = get_factory_getter(Key(FactoryForTest))
+    set_factory_for_test = get_factory_setter(Key(FactoryForTest))
+
+    with raises(FactoryStorageNotFoundException):
+        set_factory_for_test(factory_for_test)
+
+    with DictFactoryStorage():
+        set_factory_for_test(factory_for_test)
+        assert get_factory_for_test() is factory_for_test
 
 
 def test_proxy_factory_with_different_contexts() -> None:
-    test_factory, set_test_factory = use_factory(Key(TestFactory))
+    proxy_factory_for_test, set_factory_for_test = use_factory(Key(FactoryForTest))
     with DictFactoryStorage():
-        set_test_factory(TestFactoryImpl(42))
+        set_factory_for_test(Mock(FactoryForTest))
     with DictFactoryStorage():
         with raises(KeyError):
-            test_factory()
+            proxy_factory_for_test()
 
 
 def test_proxy_factory_with_nested_contexts() -> None:
-    test_factory, set_test_factory = use_factory(Key(TestFactory))
+    proxy_factory_for_test, set_factory_for_test = use_factory(Key(FactoryForTest))
     with DictFactoryStorage():
-        set_test_factory(TestFactoryImpl(1))
+        set_factory_for_test(Mock(FactoryForTest, return_value=1))
         with DictFactoryStorage():
-            assert test_factory() == 1
-            set_test_factory(TestFactoryImpl(2))
-            assert test_factory() == 2
-        assert test_factory() == 1
+            assert proxy_factory_for_test() == 1
+            set_factory_for_test(Mock(FactoryForTest, return_value=2))
+            assert proxy_factory_for_test() == 2
+        assert proxy_factory_for_test() == 1
 
 
-def test_enter_to_context_multiple_times() -> None:
+def test_entering_to_the_context_multiple_times() -> None:
     storage1 = DictFactoryStorage()
     storage2 = DictFactoryStorage()
 
-    storage1[Key(TestFactory)] = TestFactoryImpl(1)
-    storage2[Key(TestFactory)] = TestFactoryImpl(2)
+    storage1[Key(FactoryForTest)] = Mock(FactoryForTest, return_value=1)
+    storage2[Key(FactoryForTest)] = Mock(FactoryForTest, return_value=2)
 
-    test_factory = get_factory(Key(TestFactory))
+    test_factory = get_factory(Key(FactoryForTest))
 
     with storage1:
         assert test_factory() == 1
@@ -142,29 +145,25 @@ def test_enter_to_context_multiple_times() -> None:
 
 
 def test_different_proxy_factories_with_the_same_factory_type() -> None:
-    test_factory1, set_test_factory1 = use_factory(Key(TestFactory, "1"))
-    test_factory2, set_test_factory2 = use_factory(Key(TestFactory, "2"))
+    test_factory1, set_test_factory1 = use_factory(Key(FactoryForTest, "1"))
+    test_factory2, set_test_factory2 = use_factory(Key(FactoryForTest, "2"))
 
     with DictFactoryStorage():
-        set_test_factory1(TestFactoryImpl(1))
+        set_test_factory1(Mock(FactoryForTest, return_value=1))
         with raises(KeyError):
             test_factory2()
-        set_test_factory2(TestFactoryImpl(2))
+        set_test_factory2(Mock(FactoryForTest, return_value=2))
         assert test_factory1() == 1
         assert test_factory2() == 2
 
 
 @mark.asyncio
 async def test_async_proxy_factory() -> None:
-    class AsyncTestFactory:
+    class AsyncFactoryForTest:
         async def __call__(self) -> int:
             raise NotImplementedError()
 
-    class AsyncTestFactoryImpl(AsyncTestFactory):
-        async def __call__(self) -> int:
-            return 42
-
-    test_factory, set_test_factory = use_factory(Key(AsyncTestFactory))
+    test_factory, set_test_factory = use_factory(Key(AsyncFactoryForTest))
     with DictFactoryStorage():
-        set_test_factory(AsyncTestFactoryImpl())
-        assert await test_factory() == 42
+        set_test_factory(AsyncMock(AsyncFactoryForTest, return_value=1))
+        assert await test_factory() == 1
