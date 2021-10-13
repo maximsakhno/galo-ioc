@@ -24,7 +24,7 @@ test_requires = [
 
 setup(
     name="ioc",
-    version="0.13.1",
+    version="0.14.0",
     author="Maxim Sakhno",
     author_email="maxim.sakhno@iqtek.ru",
     packages=find_packages(where="src"),
