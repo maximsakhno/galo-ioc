@@ -5,6 +5,7 @@ from typing import (
     List,
     Type,
     Callable,
+    overload,
 )
 from types import (
     TracebackType,
@@ -102,8 +103,26 @@ def get_factory_setter(key: Key[F]) -> Callable[[F], None]:
     return set_factory
 
 
+@overload
+def get_factory(key: Key[F], /) -> F: ...
+
+
+@overload
+def get_factory(factory_type: Type[F], id: Optional[str] = None, /) -> F: ...
+
+
 @lru_cache
-def get_factory(key: Key[F]) -> F:
+def get_factory(*args: Any) -> Any:
+    if len(args) == 1:
+        if isinstance(args[0], Key):
+            key = args[0]
+        else:
+            key = Key(args[0])
+    elif len(args) == 2:
+        key = Key(args[0], args[1])
+    else:
+        raise TypeError(f"Illegal arguments.")
+
     factory_type = key.factory_type
     check_factory_type(factory_type)
 
@@ -116,7 +135,27 @@ def get_factory(key: Key[F]) -> F:
     return Factory()
 
 
-def set_factory(key: Key[F], factory: F) -> None:
+@overload
+def set_factory(key: Key[F], factory: F, /) -> None: ...
+
+
+@overload
+def set_factory(factory_type: Type[F], factory: F, id: Optional[str] = None, /) -> None: ...
+
+
+def set_factory(*args: Any) -> None:
+    if len(args) == 2:
+        if isinstance(args[0], Key):
+            key, factory = args
+        else:
+            key = Key(args[0])
+            factory = args[1]
+    elif len(args) == 3:
+        key = Key(args[0], args[2])
+        factory = args[1]
+    else:
+        raise TypeError(f"Illegal arguments.")
+
     get_factory_storage()[key] = factory
 
 

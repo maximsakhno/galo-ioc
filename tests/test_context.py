@@ -55,6 +55,13 @@ def test_get_factory(factory_storage: DictFactoryStorage) -> None:
         factory_for_test.assert_called_once()
 
 
+def test_get_factory_by_factory_type(factory_storage: DictFactoryStorage) -> None:
+    factory_for_test = Mock(FactoryForTest, return_value=1)
+    with factory_storage:
+        set_factory(FactoryForTest, factory_for_test)
+        assert get_factory(FactoryForTest)() == 1
+
+
 def test_get_factory_getter(factory_storage: DictFactoryStorage) -> None:
     factory_for_test = Mock(FactoryForTest)
     get_factory_for_test = get_factory_getter(Key(FactoryForTest))
