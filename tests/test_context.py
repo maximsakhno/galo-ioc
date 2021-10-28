@@ -1,176 +1,124 @@
-from unittest.mock import (
-    Mock,
-    AsyncMock,
-)
-from pytest import (
-    fixture,
-    raises,
-    mark,
-)
-from ioc import (
-    FactoryStorageNotFoundException,
-    Key,
-    DictFactoryStorage,
-    get_factory_storage,
-    get_factory_getter,
-    get_factory_setter,
-    get_factory,
-    set_factory,
-    use_factory,
-)
-from util import (
-    FactoryForTest,
-)
+import pytest
+from typing import Optional, Any
+from unittest.mock import Mock, call
+from ioc import FactoryType, Factory, FactoryContainerException, FactoryNotFoundException
+from ioc.context import factory_container, add_factory, add_factory_decorator, get_factory
 
 
-@fixture
-def factory_storage() -> DictFactoryStorage:
-    return DictFactoryStorage()
+class FactoryForTest:
+    def __call__(self, a: int, b: int) -> int:
+        raise NotImplementedError()
 
 
-def test_get_factory_storage(factory_storage: DictFactoryStorage) -> None:
-    factory_for_test = Mock(FactoryForTest)
-    factory_storage[Key(FactoryForTest)] = factory_for_test
+class FactoryForTestImpl(FactoryForTest):
+    def __init__(self, mock: Optional[Mock] = None) -> None:
+        if mock is None:
+            mock = Mock(side_effect=lambda a, b: a + b)
+        self.mock = mock
 
-    with raises(FactoryStorageNotFoundException):
-        get_factory_storage()
-
-    with factory_storage:
-        assert get_factory_storage()[Key(FactoryForTest)] is factory_for_test
-
-
-def test_get_factory(factory_storage: DictFactoryStorage) -> None:
-    factory_for_test = Mock(FactoryForTest, return_value=1)
-    proxy_factory_for_test = get_factory(Key(FactoryForTest))
-
-    with raises(FactoryStorageNotFoundException):
-        proxy_factory_for_test()
-
-    with factory_storage:
-        with raises(KeyError):
-            proxy_factory_for_test()
-
-        factory_storage[Key(FactoryForTest)] = factory_for_test
-        assert proxy_factory_for_test() == 1
-        factory_for_test.assert_called_once()
+    def __call__(self, a: int, b: int) -> int:
+        return self.mock(a, b)
 
 
-def test_get_factory_by_factory_type(factory_storage: DictFactoryStorage) -> None:
-    factory_for_test = Mock(FactoryForTest, return_value=1)
-    with factory_storage:
-        set_factory(FactoryForTest, factory_for_test)
-        assert get_factory(FactoryForTest)() == 1
+def test_add_factory_without_factory_container() -> None:
+    with pytest.raises(FactoryContainerException):
+        add_factory(FactoryForTest, FactoryForTestImpl())
 
 
-def test_get_factory_getter(factory_storage: DictFactoryStorage) -> None:
-    factory_for_test = Mock(FactoryForTest)
-    get_factory_for_test = get_factory_getter(Key(FactoryForTest))
-
-    with raises(FactoryStorageNotFoundException):
-        get_factory_for_test()
-
-    with factory_storage:
-        with raises(KeyError):
-            get_factory_for_test()
-
-        factory_storage[Key(FactoryForTest)] = factory_for_test
-        assert get_factory_for_test() is factory_for_test
+def test_add_factory_with_factory_container() -> None:
+    factory_for_test = FactoryForTestImpl()
+    with factory_container():
+        add_factory(FactoryForTest, factory_for_test)
+        assert get_factory(FactoryForTest)(1, 2) == 3
+    factory_for_test.mock.assert_called_once_with(1, 2)
 
 
-def test_set_factory() -> None:
-    factory_for_test = Mock(FactoryForTest, return_value=1)
-    proxy_factory_for_test = get_factory(Key(FactoryForTest))
-
-    with DictFactoryStorage():
-        with raises(KeyError):
-            proxy_factory_for_test()
-
-        set_factory(Key(FactoryForTest), factory_for_test)
-        assert proxy_factory_for_test() == 1
-        factory_for_test.assert_called_once()
-
-
-def test_get_factory_setter() -> None:
-    factory_for_test = Mock(FactoryForTest)
-    get_factory_for_test = get_factory_getter(Key(FactoryForTest))
-    set_factory_for_test = get_factory_setter(Key(FactoryForTest))
-
-    with raises(FactoryStorageNotFoundException):
-        set_factory_for_test(factory_for_test)
-
-    with DictFactoryStorage():
-        set_factory_for_test(factory_for_test)
-        assert get_factory_for_test() is factory_for_test
+def test_add_factory_with_nested_factory_container() -> None:
+    factory_for_test1 = FactoryForTestImpl()
+    factory_for_test2 = FactoryForTestImpl()
+    with factory_container():
+        add_factory(FactoryForTest, factory_for_test1)
+        with factory_container():
+            add_factory(FactoryForTest, factory_for_test2)
+            get_factory(FactoryForTest)(1, 2)
+            factory_for_test1.mock.assert_not_called()
+            factory_for_test2.mock.assert_called_once_with(1, 2)
+        factory_for_test2.mock.reset_mock()
+        get_factory(FactoryForTest)(1, 2)
+        factory_for_test1.mock.assert_called_once_with(1, 2)
+        factory_for_test2.mock.assert_not_called()
 
 
-def test_proxy_factory_with_different_contexts() -> None:
-    proxy_factory_for_test, set_factory_for_test = use_factory(Key(FactoryForTest))
-    with DictFactoryStorage():
-        set_factory_for_test(Mock(FactoryForTest))
-    with DictFactoryStorage():
-        with raises(KeyError):
-            proxy_factory_for_test()
+def test_add_factory_decorator() -> None:
+    def factory_decorator1(factory_type: FactoryType, id: Optional[str], factory: Factory) -> Factory:
+        if not issubclass(factory_type, FactoryForTest):
+            return factory
+
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            parent.before_mock1(*args, **kwargs)
+            result = factory(*args, **kwargs)
+            parent.after_mock1(*args, **kwargs)
+            return result
+
+        return wrapper
+
+    def factory_decorator2(factory_type: FactoryType, id: Optional[str], factory: Factory) -> Factory:
+        if not issubclass(factory_type, FactoryForTest):
+            return factory
+
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            parent.before_mock2(*args, **kwargs)
+            result = factory(*args, **kwargs)
+            parent.after_mock2(*args, **kwargs)
+            return result
+
+        return wrapper
+
+    factory_for_test = FactoryForTestImpl()
+    parent = Mock()
+    parent.mock = factory_for_test.mock
+    parent.before_mock1 = Mock()
+    parent.before_mock2 = Mock()
+    parent.after_mock1 = Mock()
+    parent.after_mock2 = Mock()
+
+    with factory_container():
+        add_factory_decorator(factory_decorator2)
+        add_factory(FactoryForTest, factory_for_test)
+        add_factory_decorator(factory_decorator1)
+        assert get_factory(FactoryForTest)(1, 2) == 3
+
+    parent.assert_has_calls([
+        call.before_mock1(1, 2),
+        call.before_mock2(1, 2),
+        call.mock(1, 2),
+        call.after_mock2(1, 2),
+        call.after_mock1(1, 2),
+    ])
 
 
-def test_proxy_factory_with_nested_contexts() -> None:
-    proxy_factory_for_test, set_factory_for_test = use_factory(Key(FactoryForTest))
-    with DictFactoryStorage():
-        set_factory_for_test(Mock(FactoryForTest, return_value=1))
-        with DictFactoryStorage():
-            assert proxy_factory_for_test() == 1
-            set_factory_for_test(Mock(FactoryForTest, return_value=2))
-            assert proxy_factory_for_test() == 2
-        assert proxy_factory_for_test() == 1
+def test_factory_not_found() -> None:
+    with factory_container():
+        with pytest.raises(FactoryNotFoundException):
+            get_factory(FactoryForTest)(1, 2)
 
 
-def test_entering_to_the_context_multiple_times() -> None:
-    storage1 = DictFactoryStorage()
-    storage2 = DictFactoryStorage()
+def test_non_callable_factory() -> None:
+    class NonCallableFactory:
+        pass
 
-    storage1[Key(FactoryForTest)] = Mock(FactoryForTest, return_value=1)
-    storage2[Key(FactoryForTest)] = Mock(FactoryForTest, return_value=2)
-
-    test_factory = get_factory(Key(FactoryForTest))
-
-    with storage1:
-        assert test_factory() == 1
-        with storage1:
-            assert test_factory() == 1
-            with storage2:
-                assert test_factory() == 2
-            assert test_factory() == 1
-        assert test_factory() == 1
-
-    with storage1:
-        assert test_factory() == 1
-        with storage2:
-            assert test_factory() == 2
-            with storage1:
-                assert test_factory() == 1
-            assert test_factory() == 2
-        assert test_factory() == 1
+    with factory_container():
+        with pytest.raises(FactoryContainerException):
+            add_factory(NonCallableFactory, NonCallableFactory())
 
 
-def test_different_proxy_factories_with_the_same_factory_type() -> None:
-    test_factory1, set_test_factory1 = use_factory(Key(FactoryForTest, "1"))
-    test_factory2, set_test_factory2 = use_factory(Key(FactoryForTest, "2"))
+def test_factory_type_with_illegal_attributes() -> None:
+    class FactoryWithIllegalAttributes:
+        a: int = 1
 
-    with DictFactoryStorage():
-        set_test_factory1(Mock(FactoryForTest, return_value=1))
-        with raises(KeyError):
-            test_factory2()
-        set_test_factory2(Mock(FactoryForTest, return_value=2))
-        assert test_factory1() == 1
-        assert test_factory2() == 2
+        def __call__(self) -> None:
+            pass
 
-
-@mark.asyncio
-async def test_async_proxy_factory() -> None:
-    class AsyncFactoryForTest:
-        async def __call__(self) -> int:
-            raise NotImplementedError()
-
-    test_factory, set_test_factory = use_factory(Key(AsyncFactoryForTest))
-    with DictFactoryStorage():
-        set_test_factory(AsyncMock(AsyncFactoryForTest, return_value=1))
-        assert await test_factory() == 1
+    with factory_container():
+        with pytest.raises(FactoryContainerException):
+            add_factory(FactoryWithIllegalAttributes, FactoryWithIllegalAttributes())

@@ -16,15 +16,15 @@ prod_requires = [
 
 test_requires = [
     *prod_requires,
-    "pytest==6.2.2",
-    "pytest-asyncio==0.14.0",
-    "coverage==5.5",
+    "pytest==6.2.5",
+    "pytest-asyncio==0.16.0",
+    "coverage==6.0.2",
 ]
 
 
 setup(
     name="ioc",
-    version="0.14.0",
+    version="0.15.0",
     author="Maxim Sakhno",
     author_email="maxim.sakhno@iqtek.ru",
     packages=find_packages(where="src"),
