@@ -1,6 +1,6 @@
-from typing import Optional, Any, Iterator, List, Type
-from contextlib import contextmanager
-from contextvars import ContextVar
+from types import TracebackType
+from typing import Optional, Any, ContextManager, Tuple, Type
+from contextvars import ContextVar, Token
 from . import (Args, KwArgs, FactoryType, T, FactoryContainerException, FactoryNotFoundException, FactoryDecorator,
                FactoryContainer)
 from .factory_container_impl import FactoryContainerImpl
@@ -14,50 +14,55 @@ __all__ = [
 ]
 
 
-factory_containers_var: ContextVar[List[FactoryContainer]] = ContextVar("factory_containers")
+factory_containers_var: ContextVar[Tuple[FactoryContainer, ...]] = ContextVar("factory_containers", default=())
 
 
-def get_factory_containers() -> List[FactoryContainer]:
-    try:
-        return factory_containers_var.get()
-    except LookupError:
-        factory_containers = []
-        factory_containers_var.set(factory_containers)
-        return factory_containers
+class FactoryContainerContextManager:
+    def __init__(self, factory_container: FactoryContainer) -> None:
+        self.__factory_container = factory_container
+        self.__token: Optional[Token[Tuple[FactoryContainer, ...]]] = None
+
+    def __enter__(self) -> None:
+        self.__token = factory_containers_var.set((*factory_containers_var.get(), self.__factory_container))
+
+    def __exit__(
+        self,
+        exception_type: Optional[Type[BaseException]],
+        exception: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
+        if self.__token is not None:
+            factory_containers_var.reset(self.__token)
 
 
-def get_not_empty_factory_containers() -> List[FactoryContainer]:
-    factory_containers = get_factory_containers()
-    if not factory_containers:
-        raise FactoryContainerException(f"No factory containers.")
-    return factory_containers
-
-
-@contextmanager
-def factory_container(factory_container: Optional[FactoryContainer] = None) -> Iterator[None]:
+def factory_container(factory_container: Optional[FactoryContainer] = None) -> ContextManager[None]:
     if factory_container is None:
         factory_container = FactoryContainerImpl()
 
-    factory_containers = get_factory_containers()
-    factory_containers.append(factory_container)
+    return FactoryContainerContextManager(factory_container)
+
+
+def get_last_factory_container() -> FactoryContainer:
+    factory_containers = factory_containers_var.get()
     try:
-        yield
-    finally:
-        factory_containers.pop()
+        return factory_containers[-1]
+    except IndexError:
+        raise FactoryContainerException(f"No factory container in context.") from None
 
 
 def add_factory(factory_type: Type[T], factory: T, id: Optional[str] = None) -> None:
-    factory_containers = get_not_empty_factory_containers()
-    factory_containers[-1].add_factory(factory_type, factory, id)
+    get_last_factory_container().add_factory(factory_type, factory, id)
 
 
 def add_factory_decorator(factory_decorator: FactoryDecorator) -> None:
-    factory_containers = get_not_empty_factory_containers()
-    factory_containers[-1].add_factory_decorator(factory_decorator)
+    get_last_factory_container().add_factory_decorator(factory_decorator)
 
 
 def call_factory(factory_type: FactoryType, id: Optional[str], args: Args, kwargs: KwArgs) -> Any:
-    factory_containers = get_not_empty_factory_containers()
+    factory_containers = factory_containers_var.get()
+    if not factory_containers:
+        raise FactoryContainerException(f"No factory container in context.") from None
+
     for factory_container in reversed(factory_containers):
         try:
             return factory_container.call_factory(factory_type, id, args, kwargs)

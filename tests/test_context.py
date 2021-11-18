@@ -5,12 +5,12 @@ from ioc import FactoryType, Factory, FactoryContainerException, FactoryNotFound
 from ioc.context import factory_container, add_factory, add_factory_decorator, get_factory
 
 
-class FactoryForTest:
+class TestFactory:
     def __call__(self, a: int, b: int) -> int:
         raise NotImplementedError()
 
 
-class FactoryForTestImpl(FactoryForTest):
+class TestFactoryImpl(TestFactory):
     def __init__(self, mock: Optional[Mock] = None) -> None:
         if mock is None:
             mock = Mock(side_effect=lambda a, b: a + b)
@@ -22,36 +22,36 @@ class FactoryForTestImpl(FactoryForTest):
 
 def test_add_factory_without_factory_container() -> None:
     with pytest.raises(FactoryContainerException):
-        add_factory(FactoryForTest, FactoryForTestImpl())
+        add_factory(TestFactory, TestFactoryImpl())
 
 
 def test_add_factory_with_factory_container() -> None:
-    factory_for_test = FactoryForTestImpl()
+    test_factory = TestFactoryImpl()
     with factory_container():
-        add_factory(FactoryForTest, factory_for_test)
-        assert get_factory(FactoryForTest)(1, 2) == 3
-    factory_for_test.mock.assert_called_once_with(1, 2)
+        add_factory(TestFactory, test_factory)
+        assert get_factory(TestFactory)(1, 2) == 3
+    test_factory.mock.assert_called_once_with(1, 2)
 
 
 def test_add_factory_with_nested_factory_container() -> None:
-    factory_for_test1 = FactoryForTestImpl()
-    factory_for_test2 = FactoryForTestImpl()
+    test_factory1 = TestFactoryImpl()
+    test_factory2 = TestFactoryImpl()
     with factory_container():
-        add_factory(FactoryForTest, factory_for_test1)
+        add_factory(TestFactory, test_factory1)
         with factory_container():
-            add_factory(FactoryForTest, factory_for_test2)
-            get_factory(FactoryForTest)(1, 2)
-            factory_for_test1.mock.assert_not_called()
-            factory_for_test2.mock.assert_called_once_with(1, 2)
-        factory_for_test2.mock.reset_mock()
-        get_factory(FactoryForTest)(1, 2)
-        factory_for_test1.mock.assert_called_once_with(1, 2)
-        factory_for_test2.mock.assert_not_called()
+            add_factory(TestFactory, test_factory2)
+            get_factory(TestFactory)(1, 2)
+            test_factory1.mock.assert_not_called()
+            test_factory2.mock.assert_called_once_with(1, 2)
+        test_factory2.mock.reset_mock()
+        get_factory(TestFactory)(1, 2)
+        test_factory1.mock.assert_called_once_with(1, 2)
+        test_factory2.mock.assert_not_called()
 
 
 def test_add_factory_decorator() -> None:
     def factory_decorator1(factory_type: FactoryType, id: Optional[str], factory: Factory) -> Factory:
-        if not issubclass(factory_type, FactoryForTest):
+        if not issubclass(factory_type, TestFactory):
             return factory
 
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -63,7 +63,7 @@ def test_add_factory_decorator() -> None:
         return wrapper
 
     def factory_decorator2(factory_type: FactoryType, id: Optional[str], factory: Factory) -> Factory:
-        if not issubclass(factory_type, FactoryForTest):
+        if not issubclass(factory_type, TestFactory):
             return factory
 
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -74,9 +74,9 @@ def test_add_factory_decorator() -> None:
 
         return wrapper
 
-    factory_for_test = FactoryForTestImpl()
+    test_factory = TestFactoryImpl()
     parent = Mock()
-    parent.mock = factory_for_test.mock
+    parent.mock = test_factory.mock
     parent.before_mock1 = Mock()
     parent.before_mock2 = Mock()
     parent.after_mock1 = Mock()
@@ -84,9 +84,9 @@ def test_add_factory_decorator() -> None:
 
     with factory_container():
         add_factory_decorator(factory_decorator2)
-        add_factory(FactoryForTest, factory_for_test)
+        add_factory(TestFactory, test_factory)
         add_factory_decorator(factory_decorator1)
-        assert get_factory(FactoryForTest)(1, 2) == 3
+        assert get_factory(TestFactory)(1, 2) == 3
 
     parent.assert_has_calls([
         call.before_mock1(1, 2),
@@ -100,7 +100,7 @@ def test_add_factory_decorator() -> None:
 def test_factory_not_found() -> None:
     with factory_container():
         with pytest.raises(FactoryNotFoundException):
-            get_factory(FactoryForTest)(1, 2)
+            get_factory(TestFactory)(1, 2)
 
 
 def test_non_callable_factory() -> None:

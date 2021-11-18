@@ -1,4 +1,4 @@
-from typing import TypeVar, Protocol, Optional, Any, Callable, Type, Tuple, Set, Dict
+from typing import TypeVar, Protocol, Optional, Any, Callable, Type, Tuple, Set, Dict, NoReturn
 
 
 __all__ = [
