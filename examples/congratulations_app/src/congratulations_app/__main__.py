@@ -16,7 +16,9 @@ def main(module_names_path: str = "module_names.txt") -> None:
 
 def read_module_names(module_names_path: str) -> Sequence[str]:
     with open(module_names_path, mode="r") as file:
-        return [name.strip() for name in file.readlines()]
+        return [stripped_name
+                for stripped_name in (name.strip() for name in file.readlines())
+                if not stripped_name.startswith("#")]
 
 
 def load_plugins(module_names: Sequence[str]) -> None:
