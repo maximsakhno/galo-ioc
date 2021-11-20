@@ -1,6 +1,7 @@
 from typing import Optional, Any, Type, List, Dict, NamedTuple
-from . import (Args, KwArgs, Factory, FactoryType, T, FactoryNotFoundException, FactoryDecorator, FactoryContainer,
-               check_factory_type)
+from ioc import (Args, KwArgs, Factory, FactoryType, T, FactoryAlreadyAddedException, FactoryNotFoundException,
+                 FactoryDecorator, check_factory_type)
+from ioc.context import FactoryContainerContextManager
 
 
 __all__ = [
@@ -13,17 +14,23 @@ class FactoryKey(NamedTuple):
     id: Optional[str]
 
 
-class FactoryContainerImpl(FactoryContainer):
+class FactoryContainerImpl(FactoryContainerContextManager):
     def __init__(self) -> None:
+        super().__init__()
         self.__factories: Dict[FactoryKey, Factory] = {}
         self.__factory_decorators: List[FactoryDecorator] = []
 
     def add_factory(self, factory_type: Type[T], factory: T, id: Optional[str] = None) -> None:
-        check_factory_type(factory_type)
-        for factory_decorator in self.__factory_decorators:
-            factory = factory_decorator(factory_type, id, factory)
         factory_key = FactoryKey(factory_type, id)
-        self.__factories[factory_key] = factory
+        try:
+            factory = self.__factories[factory_key]
+        except KeyError:
+            check_factory_type(factory_type)
+            for factory_decorator in self.__factory_decorators:
+                factory = factory_decorator(factory_type, id, factory)
+            self.__factories[factory_key] = factory
+        else:
+            raise FactoryAlreadyAddedException(factory_type, id)
 
     def add_factory_decorator(self, factory_decorator: FactoryDecorator) -> None:
         for factory_key in self.__factories.keys():
@@ -36,5 +43,5 @@ class FactoryContainerImpl(FactoryContainer):
         try:
             factory = self.__factories[factory_key]
         except KeyError:
-            raise FactoryNotFoundException(f"Factory not found: factory_type={factory_type!r}, id={id!r}.")
+            raise FactoryNotFoundException(factory_type, id) from None
         return factory(*args, **kwargs)

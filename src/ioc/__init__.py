@@ -1,4 +1,4 @@
-from typing import TypeVar, Protocol, Optional, Any, Callable, Type, Tuple, Set, Dict, NoReturn
+from typing import TypeVar, Protocol, Optional, Any, Callable, Type, Tuple, Set, Dict
 
 
 __all__ = [
@@ -8,6 +8,7 @@ __all__ = [
     "FactoryType",
     "T",
     "FactoryContainerException",
+    "FactoryAlreadyAddedException",
     "FactoryNotFoundException",
     "FactoryDecorator",
     "FactoryContainer",
@@ -26,8 +27,14 @@ class FactoryContainerException(Exception):
     pass
 
 
+class FactoryAlreadyAddedException(FactoryContainerException):
+    def __init__(self, factory_type: FactoryType, id: Optional[str]) -> None:
+        super().__init__(f"Factory already added: factory_type={factory_type!r}, id={id!r}.")
+
+
 class FactoryNotFoundException(FactoryContainerException):
-    pass
+    def __init__(self, factory_type: FactoryType, id: Optional[str]) -> None:
+        super().__init__(f"Factory not found: factory_type={factory_type!r}, id={id!r}.")
 
 
 class FactoryDecorator(Protocol):
@@ -61,9 +68,10 @@ def check_factory_type(factory_type: FactoryType) -> None:
             required_attribute_names.discard(name)
 
     if illegal_attribute_names:
-        raise FactoryContainerException(f"Factory type contains illegal attributes: '{factory_type}', "
-                                        f"'{illegal_attribute_names}'.")
+        raise FactoryContainerException(f"Factory type contains illegal attributes: factory_type={factory_type!r}, "
+                                        f"illegal_attribute_names={illegal_attribute_names!r}.")
 
     if required_attribute_names:
-        raise FactoryContainerException(f"Factory type does not contains required attributes: '{factory_type}', "
-                                        f"'{required_attribute_names}'.")
+        raise FactoryContainerException(f"Factory type does not contains required attributes: "
+                                        f"factory_type={factory_type!r}, "
+                                        f"required_attribute_names={required_attribute_names!r}.")

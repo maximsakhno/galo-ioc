@@ -1,8 +1,9 @@
 import pytest
 from typing import Optional, Any
 from unittest.mock import Mock, call
-from ioc import FactoryType, Factory, FactoryContainerException, FactoryNotFoundException
-from ioc.context import factory_container, add_factory, add_factory_decorator, get_factory
+from ioc import FactoryType, Factory, FactoryContainerException, FactoryAlreadyAddedException, FactoryNotFoundException
+from ioc.context import NoFactoryContainerInContextException, add_factory, add_factory_decorator, get_factory
+from ioc.factory_container_impl import FactoryContainerImpl
 
 
 class TestFactory:
@@ -21,24 +22,31 @@ class TestFactoryImpl(TestFactory):
 
 
 def test_add_factory_without_factory_container() -> None:
-    with pytest.raises(FactoryContainerException):
+    with pytest.raises(NoFactoryContainerInContextException):
         add_factory(TestFactory, TestFactoryImpl())
 
 
 def test_add_factory_with_factory_container() -> None:
     test_factory = TestFactoryImpl()
-    with factory_container():
+    with FactoryContainerImpl():
         add_factory(TestFactory, test_factory)
         assert get_factory(TestFactory)(1, 2) == 3
     test_factory.mock.assert_called_once_with(1, 2)
 
 
+def test_add_factory_when_factory_already_added() -> None:
+    with FactoryContainerImpl():
+        add_factory(TestFactory, TestFactoryImpl())
+        with pytest.raises(FactoryAlreadyAddedException):
+            add_factory(TestFactory, TestFactoryImpl())
+
+
 def test_add_factory_with_nested_factory_container() -> None:
     test_factory1 = TestFactoryImpl()
     test_factory2 = TestFactoryImpl()
-    with factory_container():
+    with FactoryContainerImpl():
         add_factory(TestFactory, test_factory1)
-        with factory_container():
+        with FactoryContainerImpl():
             add_factory(TestFactory, test_factory2)
             get_factory(TestFactory)(1, 2)
             test_factory1.mock.assert_not_called()
@@ -82,7 +90,7 @@ def test_add_factory_decorator() -> None:
     parent.after_mock1 = Mock()
     parent.after_mock2 = Mock()
 
-    with factory_container():
+    with FactoryContainerImpl():
         add_factory_decorator(factory_decorator2)
         add_factory(TestFactory, test_factory)
         add_factory_decorator(factory_decorator1)
@@ -97,8 +105,13 @@ def test_add_factory_decorator() -> None:
     ])
 
 
+def test_get_factory_without_factory_container() -> None:
+    with pytest.raises(NoFactoryContainerInContextException):
+        get_factory(TestFactory)(1, 2)
+
+
 def test_factory_not_found() -> None:
-    with factory_container():
+    with FactoryContainerImpl():
         with pytest.raises(FactoryNotFoundException):
             get_factory(TestFactory)(1, 2)
 
@@ -107,7 +120,7 @@ def test_non_callable_factory() -> None:
     class NonCallableFactory:
         pass
 
-    with factory_container():
+    with FactoryContainerImpl():
         with pytest.raises(FactoryContainerException):
             add_factory(NonCallableFactory, NonCallableFactory())
 
@@ -119,6 +132,6 @@ def test_factory_type_with_illegal_attributes() -> None:
         def __call__(self) -> None:
             pass
 
-    with factory_container():
+    with FactoryContainerImpl():
         with pytest.raises(FactoryContainerException):
             add_factory(FactoryWithIllegalAttributes, FactoryWithIllegalAttributes())
