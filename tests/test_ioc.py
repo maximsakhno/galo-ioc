@@ -1,9 +1,10 @@
 import pytest
 from typing import Optional, Any
 from unittest.mock import Mock, call
-from ioc import FactoryType, Factory, FactoryContainerException, FactoryAlreadyAddedException, FactoryNotFoundException
+from ioc import FactoryType, Factory
+from ioc.factory_containers import FactoryContainerException, FactoryAlreadyAddedException, FactoryNotFoundException
+from ioc.factory_containers.impl import FactoryContainerImpl
 from ioc.context import NoFactoryContainerInContextException, add_factory, add_factory_decorator, get_factory
-from ioc.factory_container_impl import FactoryContainerImpl
 
 
 class TestFactory:
@@ -121,7 +122,7 @@ def test_non_callable_factory() -> None:
         pass
 
     with FactoryContainerImpl():
-        with pytest.raises(FactoryContainerException):
+        with pytest.raises(TypeError):
             add_factory(NonCallableFactory, NonCallableFactory())
 
 
@@ -133,5 +134,5 @@ def test_factory_type_with_illegal_attributes() -> None:
             pass
 
     with FactoryContainerImpl():
-        with pytest.raises(FactoryContainerException):
+        with pytest.raises(TypeError):
             add_factory(FactoryWithIllegalAttributes, FactoryWithIllegalAttributes())

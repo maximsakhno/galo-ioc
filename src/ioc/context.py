@@ -1,8 +1,9 @@
 from types import TracebackType
 from typing import Optional, Any, Tuple, Type
 from contextvars import ContextVar, Token
-from ioc import (Args, KwArgs, FactoryType, T, FactoryContainerException, FactoryNotFoundException, FactoryDecorator,
-                 FactoryContainer)
+from ioc import Args, KwArgs, FactoryType, T
+from ioc.factory_containers import (FactoryContainerException, FactoryNotFoundException, FactoryDecorator,
+                                    FactoryContainer)
 
 
 __all__ = [

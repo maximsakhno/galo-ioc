@@ -1,4 +1,3 @@
-from typing import Any
 from ioc.context import get_factory
 from fastapi_integration.text_exception_handlers import TextExceptionHandlerFactory
 from fastapi_integration.users.repositories import UserAlreadyExistsException, UserNotFoundByIdException

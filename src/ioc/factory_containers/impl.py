@@ -1,6 +1,6 @@
 from typing import Optional, Any, Type, List, Dict, NamedTuple
-from ioc import (Args, KwArgs, Factory, FactoryType, T, FactoryAlreadyAddedException, FactoryNotFoundException,
-                 FactoryDecorator, check_factory_type)
+from ioc import Args, KwArgs, Factory, FactoryType, T, check_factory_type
+from ioc.factory_containers import FactoryAlreadyAddedException, FactoryNotFoundException, FactoryDecorator
 from ioc.context import FactoryContainerContextManager
 
 
