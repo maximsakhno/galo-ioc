@@ -3,7 +3,7 @@ from fastapi.requests import Request
 from fastapi.responses import PlainTextResponse, JSONResponse, Response
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
-from ioc.context import add_factory, get_factory
+from ioc import add_factory, get_factory
 from fastapi_integration.text_exception_handlers import E, TextExceptionHandler, TextExceptionHandlerFactory
 from fastapi_integration.app import AppFactory
 

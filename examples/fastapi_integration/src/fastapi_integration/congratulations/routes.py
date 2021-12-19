@@ -1,5 +1,4 @@
-from uuid import UUID
-from ioc.context import get_factory
+from ioc import get_factory
 from fastapi.param_functions import Depends
 from fastapi.routing import APIRouter
 from congratulations_app.congratulations_services import CongratulationsServiceFactory

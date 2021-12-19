@@ -1,5 +1,4 @@
-from ioc.context import get_factory
-from ioc.factory_containers.impl import FactoryContainerImpl
+from ioc import get_factory, FactoryContainerImpl
 from congratulations_app.setup_utils import get_module_names_path, read_module_names, load_plugins
 from congratulations_app.congratulations_services import CongratulationsServiceFactory
 

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from ioc.context import add_factory
+from ioc import add_factory
 from fastapi_integration.app import AppFactory
 
 

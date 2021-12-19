@@ -2,7 +2,7 @@ from typing import Callable, Awaitable, Dict
 from fastapi.exceptions import HTTPException
 from fastapi.param_functions import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from ioc.context import get_factory, add_factory
+from ioc import get_factory, add_factory
 from fastapi_integration.app import AppFactory
 from fastapi_integration.token_encoders import TokenEncoderFactory
 from fastapi_integration.users.models import User

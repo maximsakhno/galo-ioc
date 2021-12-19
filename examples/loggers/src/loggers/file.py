@@ -1,7 +1,7 @@
 import os
 import logging
 from typing import Optional
-from ioc.context import add_factory
+from ioc import add_factory
 from loggers import LoggerFactory
 
 
