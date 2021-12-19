@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 
-Args = Tuple[Any, ...]
+Args = tuple
 KwArgs = Dict[str, Any]
 FactoryType = type
 Factory = Callable
