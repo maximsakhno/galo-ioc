@@ -154,15 +154,12 @@ class FactoryContainerImpl(FactoryContainerContextManager):
 
     def add_factory(self, factory_type: Type[T], factory: T, id: Optional[str] = None) -> None:
         factory_key = FactoryKey(factory_type, id)
-        try:
-            factory = self.__factories[factory_key]
-        except KeyError:
-            check_factory_type(factory_type)
-            for factory_decorator in self.__factory_decorators:
-                factory = factory_decorator(factory_type, id, factory)
-            self.__factories[factory_key] = factory
-        else:
+        if factory_key in self.__factories:
             raise FactoryAlreadyAddedException(factory_type, id)
+        check_factory_type(factory_type)
+        for factory_decorator in self.__factory_decorators:
+            factory = factory_decorator(factory_type, id, factory)
+        self.__factories[factory_key] = factory
 
     def add_factory_decorator(self, factory_decorator: FactoryDecorator) -> None:
         for factory_key in self.__factories.keys():
