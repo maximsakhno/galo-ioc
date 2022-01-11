@@ -1,5 +1,7 @@
 # Galo-IOC
 
+🇷🇺[Russian version](README_ru.md)
+
 ## Description
 
 A plugin system is well suited for creating flexible and extensible applications. In such a system, plugins are responsible for creating and binding application objects to each other (for example, various implementations of services or repositories). To do this, you need to have a storage of all objects. The [Service Locator](https://martinfowler.com/articles/injection.html#UsingAServiceLocator) pattern copes with this role perfectly, and the Galo-IOC project is an easy-to-use and lightweight implementation of it.
