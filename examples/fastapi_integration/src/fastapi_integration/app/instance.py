@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from ioc import add_factory
+from galo_ioc import add_factory
 from fastapi_integration.app import AppFactory
 
 

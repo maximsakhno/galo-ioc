@@ -1,4 +1,4 @@
-from ioc import get_factory
+from galo_ioc import get_factory
 from fastapi_integration.current_user_resolvers.role_checkers import RoleCheckerFactory
 
 

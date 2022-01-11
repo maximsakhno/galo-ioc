@@ -92,7 +92,7 @@ class MessengerFactory:
 ```python
 # src/congratulations_app/messengers/telegram.py
 
-from ioc import add_factory
+from galo_ioc import add_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 
 
@@ -123,7 +123,7 @@ def load() -> None:
 ```python
 # src/congratulations_app/congratulation_services/russian.py
 
-from ioc import add_factory, get_factory
+from galo_ioc import add_factory, get_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 from congratulations_app.congratulations_services import CongratulationsService, CongratulationsServiceFactory
 
@@ -159,10 +159,10 @@ __<Тут гифка>__
 
 #### Реализация функции запуска приложения
 
-В функции запуска приложения происходит чтение конфигурационного файла и загрузка модулей. Функция `get_factory` (аналогично с`set_factory`) обращается к контейнеру фабрик в текущем контексте. Чтобы добавить в текущий контекст контейнер фабрик, нужно использовать выражение `with FactoryContainerImpl():`. 
+В функции запуска приложения происходит чтение конфигурационного файла и загрузка модулей. Функция `get_factory` (аналогично с`set_factory`) обращается к контейнеру фабрик в текущем контексте. Чтобы добавить в текущий контекст контейнер фабрик, нужно использовать выражение `with FactoryContainerImpl():`.
 
 ```python
-from ioc import FactoryContainerImpl, get_factory
+from galo_ioc import FactoryContainerImpl, get_factory
 from congratulations_app.startup_utils import get_module_names_path, read_module_names, load_plugins
 from congratulations_app.congratulations_services import CongratulationsServiceFactory
 
@@ -233,7 +233,7 @@ Message 'Happy birthday, Maria!' sent to 'Maria' via WhatsApp.
 ```python
 # src/secret_corporation_plugin/messengers/secret_corporation.py
 
-from ioc import add_factory
+from galo_ioc import add_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 
 

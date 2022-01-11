@@ -92,7 +92,7 @@ Let's consider one of the implementations of the messenger — Telegram, which i
 ```python
 # src/congratulations_app/messengers/telegram.py
 
-from ioc import add_factory
+from galo_ioc import add_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 
 
@@ -123,7 +123,7 @@ Now let's move on to one of the implementations of the congratulations service, 
 ```python
 # src/congratulations_app/congratulation_services/russian.py
 
-from ioc import add_factory, get_factory
+from galo_ioc import add_factory, get_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 from congratulations_app.congratulations_services import CongratulationsService, CongratulationsServiceFactory
 
@@ -162,7 +162,7 @@ __<Тут гифка>__
 In the application startup function, the configuration file is read and modules are loaded. The `get_factory` function (similar to `set_factory`) accesses the container of factories in the current context. To add a container of factories to the current context, use the expression `with FactoryContainerImpl():`.
 
 ```python
-from ioc import FactoryContainerImpl, get_factory
+from galo_ioc import FactoryContainerImpl, get_factory
 from congratulations_app.startup_utils import get_module_names_path, read_module_names, load_plugins
 from congratulations_app.congratulations_services import CongratulationsServiceFactory
 
@@ -233,7 +233,7 @@ Consider the implementation of the module `src/secret_corporation_plugin/messeng
 ```python
 # src/secret_corporation_plugin/messengers/secret_corporation.py
 
-from ioc import add_factory
+from galo_ioc import add_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 
 

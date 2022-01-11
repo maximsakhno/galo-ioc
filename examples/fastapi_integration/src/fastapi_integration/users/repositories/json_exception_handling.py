@@ -1,5 +1,5 @@
 from typing import Any
-from ioc import get_factory
+from galo_ioc import get_factory
 from fastapi_integration.json_exception_handlers import JsonExceptionHandlerFactory
 from fastapi_integration.users.repositories import UserAlreadyExistsException, UserNotFoundByIdException
 

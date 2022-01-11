@@ -1,6 +1,6 @@
 from logging import Logger
 from typing import Optional, Dict
-from ioc import FactoryType, Factory, add_factory_decorator, get_factory
+from galo_ioc import FactoryType, Factory, add_factory_decorator, get_factory
 from congratulations_app.congratulations_services import CongratulationsService, CongratulationsServiceFactory
 from loggers import LoggerFactory
 

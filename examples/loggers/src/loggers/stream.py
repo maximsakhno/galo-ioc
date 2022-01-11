@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 from typing import Optional
-from ioc import add_factory
+from galo_ioc import add_factory
 from loggers import LoggerFactory
 
 

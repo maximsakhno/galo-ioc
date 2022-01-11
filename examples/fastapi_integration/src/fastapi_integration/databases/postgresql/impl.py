@@ -1,7 +1,7 @@
 import os
 from asyncpg import create_pool
 from asyncpg.pool import Pool
-from ioc import get_factory, add_factory
+from galo_ioc import get_factory, add_factory
 from fastapi_integration.app import AppFactory
 from fastapi_integration.databases.postgresql import ConnectionPoolFactory
 

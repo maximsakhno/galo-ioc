@@ -3,7 +3,7 @@ from datetime import datetime
 from asyncpg import Record
 from asyncpg.exceptions import UniqueViolationError
 from asyncpg.pool import Pool
-from ioc import add_factory, get_factory
+from galo_ioc import add_factory, get_factory
 from fastapi_integration.databases.postgresql import ConnectionPoolFactory
 from fastapi_integration.users.models import UserToCreate, UserToUpdate, User, PrivateUser
 from fastapi_integration.users.repositories import (UserAlreadyExistsException, UserNotFoundByIdException,

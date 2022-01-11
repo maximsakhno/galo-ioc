@@ -1,7 +1,7 @@
 import os
 from asyncio import get_event_loop
 from uvicorn import Config, Server
-from ioc import get_factory, FactoryContainerImpl
+from galo_ioc import get_factory, FactoryContainerImpl
 from congratulations_app.startup_utils import get_module_names_path, read_module_names, load_plugins
 from fastapi_integration.app import AppFactory
 

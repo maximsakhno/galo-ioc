@@ -1,7 +1,7 @@
 import os
 import jwt
 from uuid import UUID
-from ioc import add_factory
+from galo_ioc import add_factory
 from fastapi_integration.token_encoders import TokenEncoder, TokenEncoderFactory
 
 

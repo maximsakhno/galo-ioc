@@ -1,5 +1,5 @@
 from uuid import UUID
-from ioc import get_factory, add_factory
+from galo_ioc import get_factory, add_factory
 from fastapi_integration.users.models import UserToCreate, UserToUpdate, User
 from fastapi_integration.users.repositories import UserRepository, UserRepositoryFactory
 from fastapi_integration.users.services import UserService, UserServiceFactory

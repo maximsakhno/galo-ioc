@@ -1,6 +1,6 @@
 from typing import Optional, Iterable, Callable, Awaitable, Collection
 from enum import Enum, auto
-from ioc import FactoryType, Factory, get_factory, add_factory, add_factory_decorator
+from galo_ioc import FactoryType, Factory, get_factory, add_factory, add_factory_decorator
 from fastapi.exceptions import HTTPException
 from fastapi.param_functions import Depends
 from fastapi.requests import Request

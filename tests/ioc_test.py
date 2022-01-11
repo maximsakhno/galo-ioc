@@ -1,9 +1,9 @@
 import pytest
 from typing import Optional, Any
 from unittest.mock import Mock, call
-from ioc import (FactoryType, Factory, FactoryAlreadyAddedException, FactoryNotFoundException,
-                 NoFactoryContainerInContextException, add_factory, add_factory_decorator, get_factory,
-                 FactoryContainerImpl)
+from galo_ioc import (FactoryType, Factory, FactoryAlreadyAddedException, FactoryNotFoundException,
+                      NoFactoryContainerInContextException, add_factory, add_factory_decorator, get_factory,
+                      FactoryContainerImpl)
 
 
 class TestFactory:

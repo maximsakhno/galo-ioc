@@ -1,4 +1,4 @@
-from ioc import add_factory
+from galo_ioc import add_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 
 

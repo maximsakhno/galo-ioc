@@ -1,5 +1,5 @@
 from uuid import UUID
-from ioc import get_factory
+from galo_ioc import get_factory
 from fastapi.param_functions import Depends
 from fastapi.routing import APIRouter
 from fastapi_integration.app import AppFactory

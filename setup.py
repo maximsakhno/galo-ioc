@@ -9,10 +9,10 @@ test_requires = [
 
 
 setup(
-    name="ioc",
+    name="galo-ioc",
     version="0.15.0",
     author="Maxim Sakhno",
-    author_email="maxim.sakhno@iqtek.ru",
+    author_email="maxim.sakhno@gmail.com",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     tests_require=test_requires,
