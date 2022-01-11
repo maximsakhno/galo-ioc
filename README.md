@@ -1,39 +1,39 @@
 # IOC
 
-## Описание
+## Description
 
-Для создания гибких и расширяемых приложений хорошо подходит система плагинов. В такой системе плагины отвечают за создание и связывание друг с другом объектов приложения (например, различных реализаций сервисов или репозиториев). Для этого необходимо иметь хранилище всех объектов. С этой ролью отлично справляется паттерн [Service Locator](https://martinfowler.com/articles/injection.html#UsingAServiceLocator), а проект **{ioc}** является простой в использовании и легковесной его реализацией. 
+A plugin system is well suited for creating flexible and extensible applications. In such a system, plugins are responsible for creating and binding application objects to each other (for example, various implementations of services or repositories). To do this, you need to have a storage of all objects. The [Service Locator](https://martinfowler.com/articles/injection.html#UsingAServiceLocator) pattern copes with this role perfectly, and the **{ioc}** project is an easy-to-use and lightweight implementation of it.
 
-Система плагинов вместе с **{ioc}** поможет, если необходимо:
-* удобно включать/выключать части функционала приложения;
-* устанавливать приложение нескольким клиентам, у некоторых из которых часть функционала должна быть индивидуальной;
-* расширять приложение путем установки сторонних пакетов.
+The plugin system together with **{ios}** will help if necessary:
+* conveniently enable/disable parts of the application functionality;
+* install the application to several clients, some of whom must have some functionality individually;
+* extend the application by installing third-party packages.
 
-## Основные возможности
+## Main features
 
-* В [стандартной реализации](https://martinfowler.com/articles/injection.html#ADynamicServiceLocator) паттерна Service Locator для каждого класса хранится его единственный экземпляр. В этой библиотеке вместо экземпляра хранится фабрика, позволяющая гибко управлять созданием объектов. 
-* Для получения объектов одного и того же типа можно зарегистрировать несколько разных реализаций фабрик и выбирать между ними при получении объекта этого типа. 
-* Присутствует возможность передачи параметров при вызове фабрики.
-* Поддержка статического анализа кода. Благодаря этому IDE подсказывает названия и типы параметров, а также тип возвращаемого результата при вызове фабрик, что значительно упрощает написание кода и позволяет избегать глупых ошибок.
-* Поддержка декораторов для фабрик, с помощью которых можно влиять на создание объектов. Например, для всех создаваемых объектов добавить логирование или для объектов некоторого типа добавить кеширование.
+* In [standard implementation](https://martinfowler.com/articles/injection.html#ADynamicServiceLocator) of the Service Locator pattern, a single instance of each class is stored. In this library, instead of an instance, a factory is stored, which allows you to flexibly manage the creation of objects. 
+* To get objects of the same type, you can register several factory implementations and choose between them. 
+* Support for passing parameters when calling the factory.
+* Support for static code analysis. Thanks to this, the IDE suggests the names and types of parameters, as well as the type of the returned result when calling factories, which greatly simplifies writing code and avoids stupid mistakes.
+* Support for decorators for factories, with which you can influence the creation of objects. For example, add logging for all created objects or add caching for objects of some type.
 
-Стоит отметить, что Service Locator [является антипаттерном](https://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/). К его недостаткам относится сокрытие зависимостей. В примерах ниже приведен способ использования этой библиотеки, сводящий недостатки паттерна Service Locator к минимуму. А именно, Service Locator используется только в плагинах, но не в самих классах приложения. В классах приложения зависимости указываются явным образом в конструкторах.   
+It is worth noting that Service Locator [is an antipattern](https://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/). Its disadvantages include hiding dependencies. The examples below show a way to use this library, reducing the disadvantages of the Service Locator pattern to a minimum: Service Locator is used only in plugins, but not in the application classes. In the application classes, dependencies are explicitly specified in the constructors.
 
-## Примеры использования
+## Usage examples
 
-Чтобы продемонстрировать возможности библиотеки, представим следующий пример. Продуктовая IT-компания разрабатывает продукт, позволяющий их клиентам — другим компаниям — поздравлять своих сотрудников с днем рождения через мессенджер. Среди клиентов есть как российские, так и зарубежные компании, а список используемых мессенджеров включает Telegram, WhatsApp и внутренние корпоративные мессенджеры компаний.
+To demonstrate the capabilities of the library, consider the following example. An IT company is developing a product that allows their customers — other companies — to congratulate employees on birthday via a messenger. Among the customers there are companies from different countries, and the list of messengers used includes WhatsApp, Telegram and internal corporate messengers of companies.
 
-### Система плагинов
+### Plugin system
 
-Эта библиотека хорошо работает в связке с какой-либо системой плагинов, в которой плагины позволяют создавать и связывать объекты приложения (сервисы, репозитории) друг с другом. Данная библиотека не предоставляет реализацию системы плагинов, т.к. это не является её ответственностью. Чтобы использовать данную библиотеку, придется взять готовую реализацию системы плагинов или реализовать ее самому. Для данных примеров реализуем систему плагинов самостоятельно.
+This library works well with any plugin system, in which plugins allow you to create and bind application objects (services, repositories) with each other. This library does not provide an implementation of the plugin system, because it is not its responsibility. To use this library, you will have to take a ready-made implementation of the plugin system or implement it yourself. For these examples, we implement the plugin system ourselves.
 
-Эта реализация системы плагинов будет очень проста, но в то же время достаточно функциональна, чтобы продемонстрировать все возможности библиотеки **ioc**. В этой системе плагинов в конфигурационном файле будут содержаться названия модулей. Каждый такой модуль будет содержать функцию `load`, которая будет отвечать за создание и регистрацию объектов приложения в Локаторе Служб. При запуске приложения эти модули будут импортироваться и затем у них будет вызываться функция `load`.
+This implementation of the plugin system will be very simple, but at the same time functional enough to demonstrate all the features of the **ioc** library. In this plugin system, the configuration file will contain the names of the modules. Each such module will contain a `load` function, which will be responsible for creating and registering application objects in the Service Locator. When the application starts, these modules will be imported, and then the `load` function will be called for each of them.
 
-### Приложение для поздравления сотрудников
+### An application for congratulating employees
 
-#### Структура проекта
+#### Project structure
 
-Проект будет иметь следующую структуру:
+The project will have the following structure:
 
 ```text
 .
@@ -53,20 +53,20 @@
          └── whatsapp.py
 ```
 
-#### Конфигурационный файл
+#### Configuration file
 
-Файл `module_names.txt` — это тот самый конфигурационный файл, в котором перечислены модули. Эти модули будут импортированы и у каждого будет вызвана функция `load`. Пример содержимого файла `module_names.txt`:
+File `module_names.txt ` is the configuration file that lists the modules. These modules will be imported and the `load` function will be called for each of them. Example of file contents `module_names.txt`:
 
 ```
 congratulations_app.messengers.telegram
 congratulations_app.congratulations_services.russian
 ```
 
-Как видно, в качестве мессенджера используется Telegram. Если будет необходимость заменить мессенджер Telegram на WhatsApp, например, при установке приложения другому клиенту с таким запросом, то достаточно будет заменить строчку `congratulations_app.messengers.telegram` на `congratulations_app.messengers.whatsapp` в конфигурационном файле нового клиента. Таким образом можно заменить любой компонент приложения на любой другой без необходимости модификации кода.
+As you can see, Telegram is used as a messenger. If there is a need to replace the Telegram messenger with WhatsApp, for example, when installing an application to another customer with such a requirement, it will be enough to replace the line `congratulations_app.messengers.telegram` with `congratulations_app.messengers.whatsapp` in the configuration file of the new customer. In this way, you can replace any application object with any other without having to modify the code.
 
-#### Реализация мессенджеров
+#### Implementation of messengers
 
-В файле `src/congratulations_app/messengers/__init__.py` содержится интерфейс мессенджера — `Messenger` и интерфейс фабрики мессенджера — `MessengerFactory`. Интерфейс фабрики необходим, чтобы задать контракт, который будут использовать другие модули для получения этого объекта.
+The file `src/congratulations_app/messengers/__init__.py` contains the messenger interface — `Messenger` and the messenger factory interface — `MessengerFactory`. The factory interface is needed to specify the contract that other modules will use to get this object.
 
 ```python
 # src/congratulations_app/messengers/__init__.py
@@ -87,7 +87,7 @@ class MessengerFactory:
         raise NotImplementedError()
 ```
 
-Рассмотрим одну из реализаций мессенджера — Telegram, которая содержится в модуле `src/congratulations_app/messengers/telegram.py`. Этот модуль содержит реализацию интерфейса `Messenger` — `TelegramMessenger` и функцию `load`. Эта функция будет вызвана при инициализации приложения, если этот модуль указан в конфигурационном файле `module_names.txt`. В ней создается экземпляр класса `TelegramMessenger` и фабрика, которая его возвращает, — `TelegramMessengerFactory`. Затем эта фабрика регистрируется в Локаторе Служб с помощью функции `add_factory` из библиотеки **ioc**. После чего с помощью этой фабрики можно будет получить экземпляр класса `Messenger` в другом модуле. Аналогичным образом реализован модуль `src/congratulations_app/messengers/whatsapp.py`
+Let's consider one of the implementations of the messenger — Telegram, which is contained in the module `src/congratulations_app/messengers/telegram.py`. This module contains the implementation of the `Messenger` interface — `TelegramMessenger` and the `load` function. This function will be called when the application is initialized if this module is specified in the configuration file `module_names.txt`. The function creates an instance of the `TelegramMessenger` class and the factory `TelegramMessengerFactory` that returns the messenger instance. This factory is then registered in the Service Locator using the `add_factory` function from the **ioc** library. After that, using this factory, it will be possible to get an instance of the `Messenger` class in another module. The module contained the WhatsApp messenger is implemented in a similar way — `src/congratulations_app/messengers/whatsapp.py`.
 
 ```python
 # src/congratulations_app/messengers/telegram.py
@@ -116,9 +116,9 @@ def load() -> None:
     add_factory(MessengerFactory, TelegramMessengerFactory())
 ```
 
-#### Реализация сервисов поздравлений
+#### Implementation of congratulations services
 
-Теперь перейдем к одной из реализаций сервиса поздравлений, которая содержится в модуле `src/congratulations_app/congratulation_services/russian.py`. Функция `load` в этом модуле отвечает за создание объекта типа `RussianCongratulationsService` и регистрацию его фабрики в Локаторе Служб. Для получения зависимости `messenger` используется функция `get_factory`. Она позволяет получить доступ к фабрике `MessengerFactory`, которая в данный момент зарегистрирована в Локаторе Служб. Это может быть `TelegramMessengerFactory`, `WhatsAppMessengerFactory` или любая другая. Затем экземпляр класса `Messenger` получается путем вызова этой фабрики. После чего он передается в конструктор класса `RussianCongratulationsService` для его создания.
+Now let's move on to one of the implementations of the congratulations service, which is contained in the module `src/congratulations_app/congratulation_services/russian.py` The `load` function in this module is responsible for creating an object of the `RussianCongratulationsService` type and registering its factory in the Services Locator. To get the `messenger` dependency, the `get_factory` function is used. It allows you to access the `MessengerFactory`, which is currently registered in the Services Locator. It can be `TelegramMessengerFactory`, `WhatsAppMessengerFactory` or any other. Then an instance of the `Messenger` class is gotten by calling this factory. After that, it is passed to the constructor of the `RussianCongratulationsService` class to create it.
 
 ```python
 # src/congratulations_app/congratulation_services/russian.py
@@ -153,17 +153,17 @@ def load() -> None:
     add_factory(CongratulationsServiceFactory, RussianCongratulationsServiceFactory())
 ```
 
-Благодаря использованию интерфейсов фабрик работает статический анализ кода и автодополнение в частности. 
+Thanks to the use of factory interfaces, static code analysis and autocompletion are supported.
 
 __<Тут гифка>__
 
-#### Реализация функции запуска приложения
+#### Implementation of the application startup function
 
-В функции запуска приложения происходит чтение конфигурационного файла и загрузка модулей. Функция `get_factory` (аналогично с`set_factory`) обращается к контейнеру фабрик в текущем контексте. Чтобы добавить в текущий контекст контейнер фабрик, нужно использовать выражение `with FactoryContainerImpl():`. 
+In the application startup function, the configuration file is read and modules are loaded. The `get_factory` function (similar to `set_factory`) accesses the container of factories in the current context. To add a container of factories to the current context, use the expression `with FactoryContainerImpl():`.
 
 ```python
 from ioc import FactoryContainerImpl, get_factory
-from congratulations_app.setup_utils import get_module_names_path, read_module_names, load_plugins
+from congratulations_app.startup_utils import get_module_names_path, read_module_names, load_plugins
 from congratulations_app.congratulations_services import CongratulationsServiceFactory
 
 
@@ -181,39 +181,39 @@ if __name__ == "__main__":
     main()
 ```
 
-При содержимом файла `module_names.txt`:
+With the contents of the file `module_names.txt`:
 
 ```text
 congratulations_app.messengers.telegram
 congratulations_app.congratulations_services.russian
 ```
 
-Будет выведено:
+The output will be:
 
 ```text
 Message 'С днем рождения, Maria!' sent to 'Maria' via Telegram.
 ```
 
-Но если изменить содержимое файла `module_names.txt` на:
+But if you change the contents of the file `module_names.txt` on:
 
 ```text
 congratulations_app.messengers.whatsapp
 congratulations_app.congratulations_services.english
 ```
 
-Получим вывод:
+You get the output:
 
 ```text
 Message 'Happy birthday, Maria!' sent to 'Maria' via WhatsApp.
 ```
 
-### Реализация сторонних плагинов
+### Implementation of third-party plugins
 
-Теперь рассмотрим интеграцию в приложение сторонних плагинов. Например, новый заказчик хочет использовать приложение для поздравлений сотрудников с днем рождения, но он не хочет использовать ни один из уже реализованных мессенджеров, а вместо них хочет использовать свой внутренний корпоративный мессенджер. В месте с тем этот заказчик против включения реализации своего корпоративного мессенджера в кодовую базу приложения. Даже такой случай не является проблемой для библиотеки **ioc** в связке с системой плагинов. Для решения данной задачи необходимо создать отдельный проект. 
+Now let's look at the integration of third-party plugins into the application. For example, a new customer wants to use an application to congratulate employees on birthday, but it does not want to use any of the already implemented messengers, but instead wants to use its internal corporate messenger. At the same time, this customer is against including the implementation of its corporate messenger in the code base of the application. Even this case is not a problem for the **ioc** library together with the plugin system. To solve this problem, you need to create a separate project.
 
-#### Структура проекта
+#### Project structure
 
-Структура проекта будет выглядеть следующим образом:
+The project structure will look like this:
 
 ```text
 .
@@ -226,9 +226,9 @@ Message 'Happy birthday, Maria!' sent to 'Maria' via WhatsApp.
          └── secret_corporation.py
 ```
 
-#### Реализация внутреннего корпоративного мессенджера
+#### Implementation of an internal corporate messenger
 
-Рассмотрим реализацию модуля `src/secret_corporation_plugin/messengers/secret_corporation.py`. Как можно видеть, она ничем принципиально не отличается от реализации двух других мессенджеров, `Telegram` и `WhatsApp`, включенных в кодовую базу приложения.
+Consider the implementation of the module `src/secret_corporation_plugin/messengers/secret_corporation.py`. As you can see, it does not fundamentally differ from the implementation of the other two messengers: Telegram and WhatsApp, included in the code base of the application.
 
 ```python
 # src/secret_corporation_plugin/messengers/secret_corporation.py
@@ -257,19 +257,19 @@ def load() -> None:
     add_factory(MessengerFactory, SecretCorporationMessengerFactory())
 ```
 
-#### Интеграция стороннего плагина в приложение
+#### Integration of a third-party plugin into the application
 
-Чтобы использовать реализацию внутреннего корпоративного мессенджера в приложении вместо `Telegram` или `WhatsApp`, необходимо установить пакет `secret_corporation_plugin` с помощью команды `python setup.py install .` в корневой директории проекта с этим мессенджером. Далее в конфигурационном файле `module_names.txt` в качестве модуля с мессенджером указать `secret_corporation_plugin.messengers.secret_corporation`. В результате содержимое файла `module_names.txt` может выглядеть следующим образом:
+To use the implementation of the internal corporate messenger in the application instead of `Telegram` or `WhatsApp`, you need to install the `secret_corporation_plugin` package using the command `python setup.py install .` in the root directory of the project with this messenger. Further, in the configuration file `module_names.txt` specify `secret_corporation_plugin.messengers.secret_corporation` as a module with a messenger. As a result, the contents of the file `module_names.txt` may look like this:
 
 ```text
 secret_corporation_plugin.messengers.secret_corporation
 congratulations_app.congratulations_services.russian
 ```
 
-И при запуске приложения с таким содержимым файла `module_names.txt` получим следующий вывод:
+And when running an application with such configuration file content we get the following output:
 
 ```text
 Message 'С днем рождения, Maria!' sent to 'Maria' via Secret Corporation Messenger.
 ```
 
-Как можно видеть в качестве мессенджера используется `SecretCorporationMessenger`. Чтобы этого добиться, не потребовалось изменять код приложения, а вместо этого оказалось достаточно лишь добавить другую реализацию мессенджера в другом проекте и изменить конфигурационный файл.
+As you can see, `SecretCorporationMessenger` is used as a messenger. To achieve this, it was not necessary to change the application code, but it was enough just to add another implementation of the messenger in another project and change the configuration file.
