@@ -157,7 +157,7 @@ def load() -> None:
 
 Thanks to the use of factory interfaces, static code analysis and autocompletion are supported.
 
-__<Тут гифка>__
+![](autocomplete_example.gif)
 
 #### Implementation of the application startup function
 
