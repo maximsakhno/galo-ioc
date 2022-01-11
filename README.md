@@ -1,10 +1,10 @@
-# IOC
+# Galo-IOC
 
 ## Description
 
-A plugin system is well suited for creating flexible and extensible applications. In such a system, plugins are responsible for creating and binding application objects to each other (for example, various implementations of services or repositories). To do this, you need to have a storage of all objects. The [Service Locator](https://martinfowler.com/articles/injection.html#UsingAServiceLocator) pattern copes with this role perfectly, and the **{ioc}** project is an easy-to-use and lightweight implementation of it.
+A plugin system is well suited for creating flexible and extensible applications. In such a system, plugins are responsible for creating and binding application objects to each other (for example, various implementations of services or repositories). To do this, you need to have a storage of all objects. The [Service Locator](https://martinfowler.com/articles/injection.html#UsingAServiceLocator) pattern copes with this role perfectly, and the Galo-IOC project is an easy-to-use and lightweight implementation of it.
 
-The plugin system together with **{ios}** will help if necessary:
+The plugin system together with Galo-IOC will help if necessary:
 * conveniently enable/disable parts of the application functionality;
 * install the application to several clients, some of whom must have some functionality individually;
 * extend the application by installing third-party packages.
@@ -27,7 +27,7 @@ To demonstrate the capabilities of the library, consider the following example. 
 
 This library works well with any plugin system, in which plugins allow you to create and bind application objects (services, repositories) with each other. This library does not provide an implementation of the plugin system, because it is not its responsibility. To use this library, you will have to take a ready-made implementation of the plugin system or implement it yourself. For these examples, we implement the plugin system ourselves.
 
-This implementation of the plugin system will be very simple, but at the same time functional enough to demonstrate all the features of the **ioc** library. In this plugin system, the configuration file will contain the names of the modules. Each such module will contain a `load` function, which will be responsible for creating and registering application objects in the Service Locator. When the application starts, these modules will be imported, and then the `load` function will be called for each of them.
+This implementation of the plugin system will be very simple, but at the same time functional enough to demonstrate all the features of the Galo-IOC library. In this plugin system, the configuration file will contain the names of the modules. Each such module will contain a `load` function, which will be responsible for creating and registering application objects in the Service Locator. When the application starts, these modules will be imported, and then the `load` function will be called for each of them.
 
 ### An application for congratulating employees
 
@@ -87,7 +87,7 @@ class MessengerFactory:
         raise NotImplementedError()
 ```
 
-Let's consider one of the implementations of the messenger — Telegram, which is contained in the module `src/congratulations_app/messengers/telegram.py`. This module contains the implementation of the `Messenger` interface — `TelegramMessenger` and the `load` function. This function will be called when the application is initialized if this module is specified in the configuration file `module_names.txt`. The function creates an instance of the `TelegramMessenger` class and the factory `TelegramMessengerFactory` that returns the messenger instance. This factory is then registered in the Service Locator using the `add_factory` function from the **ioc** library. After that, using this factory, it will be possible to get an instance of the `Messenger` class in another module. The module contained the WhatsApp messenger is implemented in a similar way — `src/congratulations_app/messengers/whatsapp.py`.
+Let's consider one of the implementations of the messenger — Telegram, which is contained in the module `src/congratulations_app/messengers/telegram.py`. This module contains the implementation of the `Messenger` interface — `TelegramMessenger` and the `load` function. This function will be called when the application is initialized if this module is specified in the configuration file `module_names.txt`. The function creates an instance of the `TelegramMessenger` class and the factory `TelegramMessengerFactory` that returns the messenger instance. This factory is then registered in the Service Locator using the `add_factory` function from the Galo-IOC library. After that, using this factory, it will be possible to get an instance of the `Messenger` class in another module. The module contained the WhatsApp messenger is implemented in a similar way — `src/congratulations_app/messengers/whatsapp.py`.
 
 ```python
 # src/congratulations_app/messengers/telegram.py
@@ -209,7 +209,7 @@ Message 'Happy birthday, Maria!' sent to 'Maria' via WhatsApp.
 
 ### Implementation of third-party plugins
 
-Now let's look at the integration of third-party plugins into the application. For example, a new customer wants to use an application to congratulate employees on birthday, but it does not want to use any of the already implemented messengers, but instead wants to use its internal corporate messenger. At the same time, this customer is against including the implementation of its corporate messenger in the code base of the application. Even this case is not a problem for the **ioc** library together with the plugin system. To solve this problem, you need to create a separate project.
+Now let's look at the integration of third-party plugins into the application. For example, a new customer wants to use an application to congratulate employees on birthday, but it does not want to use any of the already implemented messengers, but instead wants to use its internal corporate messenger. At the same time, this customer is against including the implementation of its corporate messenger in the code base of the application. Even this case is not a problem for the Galo-IOC library together with the plugin system. To solve this problem, you need to create a separate project.
 
 #### Project structure
 
