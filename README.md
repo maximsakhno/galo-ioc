@@ -275,3 +275,20 @@ Message 'С днем рождения, Maria!' sent to 'Maria' via Secret Corpor
 ```
 
 As you can see, `SecretCorporationMessenger` is used as a messenger. To achieve this, it was not necessary to change the application code, but it was enough just to add another implementation of the messenger in another project and change the configuration file.
+
+The full version of the example can be found at [link](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/congratulations_app).
+
+## More examples
+
+More examples can be found at [link](https://github.com/maximsakhno/galo-ioc/tree/develop/examples).
+
+* [loggers](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/loggers) contains an example of a factory with input arguments.
+* [congratulations_service_audit](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/congratulations_service_audit) contains an example of using a decorator. The decorator is used for logging of input arguments for the `CongratulationsService`.
+
+* [facet api_integration](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/fastapi_integration) contains an example of integration with the FastAPI web framework. This example implements:
+  * two error handlers: text and json;
+  * two user repositories: Memory and PostgreSQL;
+  * two authentication methods: Basic authentication and OAuth 2;
+  * and other functionality.
+
+  You can select the used implementations of the error handler, the user repository, and the authentication method in the configuration file `module_names.txt `.

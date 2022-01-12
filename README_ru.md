@@ -275,3 +275,19 @@ Message 'С днем рождения, Maria!' sent to 'Maria' via Secret Corpor
 ```
 
 Как можно видеть в качестве мессенджера используется `SecretCorporationMessenger`. Чтобы этого добиться, не потребовалось изменять код приложения, а достаточно было лишь добавить другую реализацию мессенджера в другом проекте и изменить конфигурационный файл.
+
+Полную версию примера можно найти по [ссылке](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/congratulations_app).
+
+## Больше примеров
+
+Больше примеров можно найти по [ссылке](https://github.com/maximsakhno/galo-ioc/tree/develop/examples).
+
+* [loggers](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/loggers) содержит пример фабрики с входными аргументами.
+* [congratulations_service_audit](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/congratulations_service_audit) содержит пример использования декоратора. С его помощью для `CongratulationsService` добавляется логирование входных аргументов.
+* [fastapi_integration](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/fastapi_integration) содержит пример интеграции с веб-фреймворком FastAPI. В этом примере реализовано:
+  * два обработчика ошибок: text и json;
+  * два репозитория пользователей: Memory и PostgreSQL;
+  * два способа аутентификации: Basic authentication и OAuth 2;
+  * и другая функциональность.
+  
+  Выбирать используемые реализации обработчика ошибок, репозитория пользователей и способ аутентификации можно в конфигурационном файле `module_names.txt`.
