@@ -285,7 +285,7 @@ More examples can be found at [link](https://github.com/maximsakhno/galo-ioc/tre
 * [loggers](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/loggers) contains an example of a factory with input arguments.
 * [congratulations_service_audit](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/congratulations_service_audit) contains an example of using a decorator. The decorator is used for logging of input arguments for the `CongratulationsService`.
 
-* [facet api_integration](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/fastapi_integration) contains an example of integration with the FastAPI web framework. This example implements:
+* [fastapi_integration](https://github.com/maximsakhno/galo-ioc/tree/develop/examples/fastapi_integration) contains an example of integration with the FastAPI web framework. This example implements:
   * two error handlers: text and json;
   * two user repositories: Memory and PostgreSQL;
   * two authentication methods: Basic authentication and OAuth 2;
