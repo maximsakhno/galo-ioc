@@ -1,6 +1,7 @@
 # Galo-IOC
 
 ![test workflow](https://github.com/maximsakhno/galo-ioc/actions/workflows/test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/maximsakhno/galo-ioc/branch/develop/graph/badge.svg?token=4S2MSEZ06Z)](https://codecov.io/gh/maximsakhno/galo-ioc)
 
 🇷🇺[Russian version](README_ru.md)
 
