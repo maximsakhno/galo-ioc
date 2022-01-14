@@ -4,8 +4,16 @@ from unittest.mock import call, Mock
 import pytest
 
 from galo_ioc import (
-    add_factory, add_factory_decorator, Factory, FactoryAlreadyAddedException, FactoryContainerImpl,
-    FactoryNotFoundException, FactoryType, get_factory, NoFactoryContainerInContextException)
+    add_factory,
+    add_factory_decorator,
+    Factory,
+    FactoryAlreadyAddedException,
+    FactoryContainerImpl,
+    FactoryNotFoundException,
+    FactoryType,
+    get_factory,
+    NoFactoryContainerInContextException,
+)
 
 
 class TestFactory:
@@ -61,9 +69,9 @@ def test_add_factory_with_nested_factory_container() -> None:
 
 def test_add_factory_decorator() -> None:
     def factory_decorator1(
-            factory_type: FactoryType,
-            id: Optional[str],
-            factory: Factory,
+        factory_type: FactoryType,
+        id: Optional[str],
+        factory: Factory,
     ) -> Factory:
         if not issubclass(factory_type, TestFactory):
             return factory
@@ -77,9 +85,9 @@ def test_add_factory_decorator() -> None:
         return wrapper
 
     def factory_decorator2(
-            factory_type: FactoryType,
-            id: Optional[str],
-            factory: Factory,
+        factory_type: FactoryType,
+        id: Optional[str],
+        factory: Factory,
     ) -> Factory:
         if not issubclass(factory_type, TestFactory):
             return factory
@@ -106,13 +114,15 @@ def test_add_factory_decorator() -> None:
         add_factory_decorator(factory_decorator1)
         assert get_factory(TestFactory)(1, 2) == 3
 
-    parent.assert_has_calls([
-        call.before_mock1(1, 2),
-        call.before_mock2(1, 2),
-        call.mock(1, 2),
-        call.after_mock2(1, 2),
-        call.after_mock1(1, 2),
-    ])
+    parent.assert_has_calls(
+        [
+            call.before_mock1(1, 2),
+            call.before_mock2(1, 2),
+            call.mock(1, 2),
+            call.after_mock2(1, 2),
+            call.after_mock1(1, 2),
+        ]
+    )
 
 
 def test_get_factory_without_factory_container() -> None:
