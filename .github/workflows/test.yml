@@ -7,10 +7,15 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - run: bash scripts/install-dependencies.sh
-      - run: bash scripts/lint.sh
-      - run: bash scripts/test.sh
+      - name: Install dependencies
+        run: bash scripts/install-dependencies.sh
+      - name: Lint
+        run: bash scripts/lint.sh
+      - name: Test
+        run: bash scripts/test.sh
