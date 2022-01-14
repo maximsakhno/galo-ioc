@@ -1,6 +1,7 @@
-from types import TracebackType
-from typing import TypeVar, Protocol, Optional, Any, Callable, Tuple, List, Set, Dict, Type, NamedTuple
 from contextvars import ContextVar, Token
+from types import TracebackType
+from typing import (
+    Any, Callable, Dict, List, NamedTuple, Optional, Protocol, Set, Tuple, Type, TypeVar)
 
 
 __all__ = [
@@ -31,8 +32,8 @@ T = TypeVar("T")
 
 
 def check_factory_type(factory_type: FactoryType) -> None:
-    legal_attribute_names: Set[str] = {"__module__", "__dict__", "__weakref__",
-                                       "__slots__", "__doc__", "__call__"}
+    legal_attribute_names: Set[str] = {
+        "__module__", "__dict__", "__weakref__", "__slots__", "__doc__", "__call__"}
     illegal_attribute_names: Set[str] = set()
     required_attribute_names: Set[str] = {"__call__"}
 
@@ -45,12 +46,16 @@ def check_factory_type(factory_type: FactoryType) -> None:
             required_attribute_names.discard(name)
 
     if illegal_attribute_names:
-        raise Exception(f"Contains illegal attributes: "
-                        f"factory_type={factory_type!r}, illegal_attribute_names={illegal_attribute_names!r}.")
+        raise Exception(
+            f"Contains illegal attributes: "
+            f"factory_type={factory_type!r}, "
+            f"illegal_attribute_names={illegal_attribute_names!r}.")
 
     if required_attribute_names:
-        raise Exception(f"Does not contains required attributes: "
-                        f"factory_type={factory_type!r}, required_attribute_names={required_attribute_names!r}.")
+        raise Exception(
+            f"Does not contains required attributes: "
+            f"factory_type={factory_type!r}, "
+            f"required_attribute_names={required_attribute_names!r}.")
 
 
 class FactoryAlreadyAddedException(Exception):
@@ -75,11 +80,18 @@ class FactoryContainer:
     def add_factory_decorator(self, factory_decorator: FactoryDecorator) -> None:
         raise NotImplementedError()
 
-    def call_factory(self, factory_type: FactoryType, id: Optional[str], args: Args, kwargs: KwArgs) -> Any:
+    def call_factory(
+            self,
+            factory_type: FactoryType,
+            id: Optional[str],
+            args: Args,
+            kwargs: KwArgs,
+    ) -> Any:
         raise NotImplementedError()
 
 
-factory_containers_var: ContextVar[Tuple[FactoryContainer, ...]] = ContextVar("factory_containers", default=())
+factory_containers_var: ContextVar[Tuple[FactoryContainer, ...]] = \
+    ContextVar("factory_containers", default=())
 
 
 class NoFactoryContainerInContextException(Exception):
@@ -164,10 +176,17 @@ class FactoryContainerImpl(FactoryContainerContextManager):
     def add_factory_decorator(self, factory_decorator: FactoryDecorator) -> None:
         for factory_key in self.__factories.keys():
             factory_type, id = factory_key
-            self.__factories[factory_key] = factory_decorator(factory_type, id, self.__factories[factory_key])
+            factory = self.__factories[factory_key]
+            self.__factories[factory_key] = factory_decorator(factory_type, id, factory)
         self.__factory_decorators.append(factory_decorator)
 
-    def call_factory(self, factory_type: FactoryType, id: Optional[str], args: Args, kwargs: KwArgs) -> Any:
+    def call_factory(
+            self,
+            factory_type: FactoryType,
+            id: Optional[str],
+            args: Args,
+            kwargs: KwArgs,
+    ) -> Any:
         factory_key = FactoryKey(factory_type, id)
         try:
             factory = self.__factories[factory_key]

@@ -1,6 +1,13 @@
 from setuptools import setup, find_packages
 
 
+dev_requires = [
+    "flake8==4.0.1",
+    "flake8-import-order==0.18.1",
+    "flake8-quotes==3.3.1",
+]
+
+
 test_requires = [
     "pytest==6.2.5",
     "pytest-asyncio==0.16.0",
@@ -17,6 +24,7 @@ setup(
     package_dir={"": "src"},
     tests_require=test_requires,
     extras_require={
+        "dev": dev_requires,
         "test": test_requires,
     },
 )

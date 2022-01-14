@@ -1,9 +1,11 @@
+from typing import Any, Optional
+from unittest.mock import call, Mock
+
 import pytest
-from typing import Optional, Any
-from unittest.mock import Mock, call
-from galo_ioc import (FactoryType, Factory, FactoryAlreadyAddedException, FactoryNotFoundException,
-                      NoFactoryContainerInContextException, add_factory, add_factory_decorator, get_factory,
-                      FactoryContainerImpl)
+
+from galo_ioc import (
+    add_factory, add_factory_decorator, Factory, FactoryAlreadyAddedException, FactoryContainerImpl,
+    FactoryNotFoundException, FactoryType, get_factory, NoFactoryContainerInContextException)
 
 
 class TestFactory:
@@ -58,7 +60,11 @@ def test_add_factory_with_nested_factory_container() -> None:
 
 
 def test_add_factory_decorator() -> None:
-    def factory_decorator1(factory_type: FactoryType, id: Optional[str], factory: Factory) -> Factory:
+    def factory_decorator1(
+            factory_type: FactoryType,
+            id: Optional[str],
+            factory: Factory,
+    ) -> Factory:
         if not issubclass(factory_type, TestFactory):
             return factory
 
@@ -70,7 +76,11 @@ def test_add_factory_decorator() -> None:
 
         return wrapper
 
-    def factory_decorator2(factory_type: FactoryType, id: Optional[str], factory: Factory) -> Factory:
+    def factory_decorator2(
+            factory_type: FactoryType,
+            id: Optional[str],
+            factory: Factory,
+    ) -> Factory:
         if not issubclass(factory_type, TestFactory):
             return factory
 
