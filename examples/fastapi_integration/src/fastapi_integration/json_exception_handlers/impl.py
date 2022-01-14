@@ -4,7 +4,8 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
 from galo_ioc import add_factory, get_factory
-from fastapi_integration.json_exception_handlers import E, JsonExceptionHandler, JsonExceptionHandlerFactory
+from fastapi_integration.json_exception_handlers import (
+    E, JsonExceptionHandler, JsonExceptionHandlerFactory)
 from fastapi_integration.app import AppFactory
 
 
@@ -20,7 +21,12 @@ class JsonExceptionHandlerImpl(JsonExceptionHandler):
         self.__exception_type_to_status_code: Dict[Type[Exception], int] = {}
         self.__exception_type_to_get_detail: Dict[Type[Exception], Callable[[Exception], Any]] = {}
 
-    def register_exception(self, exception_type: Type[E], status_code: int, get_detail: Callable[[E], Any]) -> None:
+    def register_exception(
+            self,
+            exception_type: Type[E],
+            status_code: int,
+            get_detail: Callable[[E], Any],
+    ) -> None:
         self.__exception_type_to_status_code[exception_type] = status_code
         self.__exception_type_to_get_detail[exception_type] = get_detail
 
@@ -32,7 +38,8 @@ class JsonExceptionHandlerImpl(JsonExceptionHandler):
             return await http_exception_handler(request, exception)
 
         exception_type = type(exception)
-        status_code = self.__exception_type_to_status_code.get(exception_type, self.__default_status_code)
+        status_code = self.__exception_type_to_status_code.get(
+            exception_type, self.__default_status_code)
         try:
             get_detail = self.__exception_type_to_get_detail[exception_type]
         except KeyError:

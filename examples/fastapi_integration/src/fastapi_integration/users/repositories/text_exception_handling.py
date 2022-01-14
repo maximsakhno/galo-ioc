@@ -1,6 +1,7 @@
 from galo_ioc import get_factory
 from fastapi_integration.text_exception_handlers import TextExceptionHandlerFactory
-from fastapi_integration.users.repositories import UserAlreadyExistsException, UserNotFoundByIdException
+from fastapi_integration.users.repositories import (
+    UserAlreadyExistsException, UserNotFoundByIdException)
 
 
 __all__ = [
@@ -17,5 +18,7 @@ def load() -> None:
 
     exception_handler_factory = get_factory(TextExceptionHandlerFactory)
     exception_handler = exception_handler_factory()
-    exception_handler.register_exception(UserAlreadyExistsException, 409, get_message_for_user_already_exists_exception)
-    exception_handler.register_exception(UserNotFoundByIdException, 404, get_message_for_user_not_found)
+    exception_handler.register_exception(
+        UserAlreadyExistsException, 409, get_message_for_user_already_exists_exception)
+    exception_handler.register_exception(
+        UserNotFoundByIdException, 404, get_message_for_user_not_found)

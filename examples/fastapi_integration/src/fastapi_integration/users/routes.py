@@ -39,7 +39,7 @@ def load() -> None:
         return await service.get_by_id(id)
 
     @router.get("/whoami")
-    async def get_user_by_id(user: User = Depends(current_user_resolver)) -> User:
+    async def get_current_user(user: User = Depends(current_user_resolver)) -> User:
         return user
 
     app.include_router(router)

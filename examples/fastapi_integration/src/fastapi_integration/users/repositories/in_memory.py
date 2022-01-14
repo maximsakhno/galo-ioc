@@ -2,9 +2,11 @@ from typing import Dict
 from uuid import UUID, uuid4
 from datetime import datetime
 from galo_ioc import add_factory
-from fastapi_integration.users.models import UserToCreate, UserToUpdate, User, PrivateUser, convert_private_user_to_user
-from fastapi_integration.users.repositories import (UserAlreadyExistsException, UserNotFoundByIdException,
-                                                    UserNotFoundByLoginException, UserRepository, UserRepositoryFactory)
+from fastapi_integration.users.models import (
+    UserToCreate, UserToUpdate, User, PrivateUser, convert_private_user_to_user)
+from fastapi_integration.users.repositories import (
+    UserAlreadyExistsException, UserNotFoundByIdException, UserNotFoundByLoginException,
+    UserRepository, UserRepositoryFactory)
 
 
 __all__ = [

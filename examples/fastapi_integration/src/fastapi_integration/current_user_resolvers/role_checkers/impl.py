@@ -74,7 +74,11 @@ def load() -> None:
     current_user_resolver = current_user_resolver_factory()
 
     class FastAPIRoleChecker(RoleCheckerImpl):
-        async def __call__(self, request: Request, user: User = Depends(current_user_resolver)) -> User:
+        async def __call__(
+                self,
+                request: Request,
+                user: User = Depends(current_user_resolver),
+        ) -> User:
             self.check_role(request, user)
             return user
 
@@ -86,7 +90,11 @@ def load() -> None:
         def __call__(self) -> Callable[..., Awaitable[User]]:
             return role_checker
 
-    def factory_decorator(factory_type: FactoryType, id: Optional[str], factory: Factory) -> Factory:
+    def factory_decorator(
+            factory_type: FactoryType,
+            id: Optional[str],
+            factory: Factory,
+    ) -> Factory:
         if not issubclass(factory_type, CurrentUserResolverFactory):
             return factory
         return RoleCheckerCurrentUserResolverFactory()

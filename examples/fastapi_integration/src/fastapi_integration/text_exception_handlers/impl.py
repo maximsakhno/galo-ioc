@@ -1,10 +1,11 @@
 from typing import Any, Callable, Dict, Type
 from fastapi.requests import Request
-from fastapi.responses import PlainTextResponse, JSONResponse, Response
+from fastapi.responses import PlainTextResponse, Response
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
 from galo_ioc import add_factory, get_factory
-from fastapi_integration.text_exception_handlers import E, TextExceptionHandler, TextExceptionHandlerFactory
+from fastapi_integration.text_exception_handlers import (
+    E, TextExceptionHandler, TextExceptionHandlerFactory)
 from fastapi_integration.app import AppFactory
 
 
@@ -20,7 +21,12 @@ class TextExceptionHandlerImpl(TextExceptionHandler):
         self.__exception_type_to_status_code: Dict[Type[Exception], int] = {}
         self.__exception_type_to_get_message: Dict[Type[Exception], Callable[[Exception], Any]] = {}
 
-    def register_exception(self, exception_type: Type[E], status_code: int, get_message: Callable[[E], str]) -> None:
+    def register_exception(
+            self,
+            exception_type: Type[E],
+            status_code: int,
+            get_message: Callable[[E], str],
+    ) -> None:
         self.__exception_type_to_status_code[exception_type] = status_code
         self.__exception_type_to_get_message[exception_type] = get_message
 
@@ -32,7 +38,8 @@ class TextExceptionHandlerImpl(TextExceptionHandler):
             return await http_exception_handler(request, exception)
 
         exception_type = type(exception)
-        status_code = self.__exception_type_to_status_code.get(exception_type, self.__default_status_code)
+        status_code = self.__exception_type_to_status_code.get(
+            exception_type, self.__default_status_code)
         try:
             get_message = self.__exception_type_to_get_message[exception_type]
         except KeyError:
