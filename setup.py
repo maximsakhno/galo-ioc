@@ -9,8 +9,8 @@ dev_requires = [
 
 test_requires = [
     "pytest==6.2.5",
-    "pytest-asyncio==0.16.0",
-    "coverage==6.0.2",
+    "pytest-cov==3.0.0",
+    "pytest-asyncio==0.17.0",
 ]
 
 

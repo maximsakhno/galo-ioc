@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pytest tests/
+pytest --cov galo_ioc --cov-report xml tests/
