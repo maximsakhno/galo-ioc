@@ -1,3 +1,3 @@
 #!/bin/bash
 
-flake8 src/ tests/ examples/
+flake8 src/ tests/
