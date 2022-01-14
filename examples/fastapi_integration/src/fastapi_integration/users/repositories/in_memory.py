@@ -3,10 +3,19 @@ from uuid import UUID, uuid4
 from datetime import datetime
 from galo_ioc import add_factory
 from fastapi_integration.users.models import (
-    UserToCreate, UserToUpdate, User, PrivateUser, convert_private_user_to_user)
+    UserToCreate,
+    UserToUpdate,
+    User,
+    PrivateUser,
+    convert_private_user_to_user,
+)
 from fastapi_integration.users.repositories import (
-    UserAlreadyExistsException, UserNotFoundByIdException, UserNotFoundByLoginException,
-    UserRepository, UserRepositoryFactory)
+    UserAlreadyExistsException,
+    UserNotFoundByIdException,
+    UserNotFoundByLoginException,
+    UserRepository,
+    UserRepositoryFactory,
+)
 
 
 __all__ = [
@@ -18,16 +27,20 @@ class InMemoryUserRepository(UserRepository):
     def __init__(self) -> None:
         self.__id_to_user: Dict[UUID, PrivateUser] = {}
         self.__login_to_user: Dict[str, PrivateUser] = {}
-        self.__create_sync(UserToCreate(
-            login="admin",
-            password="admin",
-            role="admin",
-        ))
-        self.__create_sync(UserToCreate(
-            login="employee",
-            password="employee",
-            role="employee",
-        ))
+        self.__create_sync(
+            UserToCreate(
+                login="admin",
+                password="admin",
+                role="admin",
+            )
+        )
+        self.__create_sync(
+            UserToCreate(
+                login="employee",
+                password="employee",
+                role="employee",
+            )
+        )
 
     async def create(self, user: UserToCreate) -> User:
         return self.__create_sync(user)

@@ -2,7 +2,9 @@ from logging import Logger
 from typing import Optional, Dict
 from galo_ioc import FactoryType, Factory, add_factory_decorator, get_factory
 from congratulations_app.congratulations_services import (
-    CongratulationsService, CongratulationsServiceFactory)
+    CongratulationsService,
+    CongratulationsServiceFactory,
+)
 from loggers import LoggerFactory
 
 
@@ -23,9 +25,9 @@ class CongratulationsServiceWrapper(CongratulationsService):
 
 def load() -> None:
     def factory_decorator(
-            factory_type: FactoryType,
-            id: Optional[str],
-            factory: Factory,
+        factory_type: FactoryType,
+        id: Optional[str],
+        factory: Factory,
     ) -> Factory:
         if not issubclass(factory_type, CongratulationsServiceFactory):
             return factory

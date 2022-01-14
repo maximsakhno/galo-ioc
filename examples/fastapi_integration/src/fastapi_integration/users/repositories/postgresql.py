@@ -7,8 +7,12 @@ from galo_ioc import add_factory, get_factory
 from fastapi_integration.databases.postgresql import ConnectionPoolFactory
 from fastapi_integration.users.models import UserToCreate, UserToUpdate, User, PrivateUser
 from fastapi_integration.users.repositories import (
-    UserAlreadyExistsException, UserNotFoundByIdException, UserNotFoundByLoginException,
-    UserRepository, UserRepositoryFactory)
+    UserAlreadyExistsException,
+    UserNotFoundByIdException,
+    UserNotFoundByLoginException,
+    UserRepository,
+    UserRepositoryFactory,
+)
 
 
 __all__ = [
@@ -42,7 +46,8 @@ class PostgreSQLUserRepository(UserRepository):
         """
         async with self.__connection_pool.acquire() as connection:
             record = await connection.fetchrow(
-                query, datetime.now(), user.login, user.password, user.role, id)
+                query, datetime.now(), user.login, user.password, user.role, id
+            )
         if record is None:
             raise UserNotFoundByIdException(id)
         return self.__record_to_user(record)

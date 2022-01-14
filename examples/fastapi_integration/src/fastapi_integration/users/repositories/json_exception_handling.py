@@ -2,7 +2,9 @@ from typing import Any
 from galo_ioc import get_factory
 from fastapi_integration.json_exception_handlers import JsonExceptionHandlerFactory
 from fastapi_integration.users.repositories import (
-    UserAlreadyExistsException, UserNotFoundByIdException)
+    UserAlreadyExistsException,
+    UserNotFoundByIdException,
+)
 
 
 __all__ = [
@@ -20,6 +22,8 @@ def load() -> None:
     exception_handler_factory = get_factory(JsonExceptionHandlerFactory)
     exception_handler = exception_handler_factory()
     exception_handler.register_exception(
-        UserAlreadyExistsException, 409, get_detail_for_user_already_exists_exception)
+        UserAlreadyExistsException, 409, get_detail_for_user_already_exists_exception
+    )
     exception_handler.register_exception(
-        UserNotFoundByIdException, 404, get_detail_for_user_not_found)
+        UserNotFoundByIdException, 404, get_detail_for_user_not_found
+    )

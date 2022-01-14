@@ -1,7 +1,9 @@
 from galo_ioc import add_factory, get_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
 from congratulations_app.congratulations_services import (
-    CongratulationsService, CongratulationsServiceFactory)
+    CongratulationsService,
+    CongratulationsServiceFactory,
+)
 
 
 __all__ = [

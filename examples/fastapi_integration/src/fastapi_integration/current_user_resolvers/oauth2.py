@@ -7,7 +7,9 @@ from fastapi_integration.app import AppFactory
 from fastapi_integration.token_encoders import TokenEncoderFactory
 from fastapi_integration.users.models import User
 from fastapi_integration.users.repositories import (
-    UserRepositoryFactory, UserNotFoundByLoginException)
+    UserRepositoryFactory,
+    UserNotFoundByLoginException,
+)
 from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
 
 

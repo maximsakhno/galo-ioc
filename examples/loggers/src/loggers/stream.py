@@ -19,7 +19,8 @@ def load() -> None:
     format = os.getenv(
         "LOGGING_FORMAT",
         "%(asctime)s - [%(levelname)s] - %(name)s - "
-        "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s")
+        "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
+    )
     level = os.getenv("LOGGING_LEVEL", "DEBUG")
     logging.basicConfig(format=format, stream=sys.stdout, level=level)
     add_factory(LoggerFactory, LoggerFactoryImpl())

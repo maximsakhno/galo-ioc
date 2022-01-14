@@ -15,10 +15,10 @@ E = TypeVar("E", bound=Exception)
 
 class TextExceptionHandler:
     def register_exception(
-            self,
-            exception_type: Type[E],
-            status_code: int,
-            get_message: Callable[[E], str],
+        self,
+        exception_type: Type[E],
+        status_code: int,
+        get_message: Callable[[E], str],
     ) -> None:
         raise NotImplementedError()
 

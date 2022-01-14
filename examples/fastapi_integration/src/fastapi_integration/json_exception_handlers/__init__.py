@@ -15,10 +15,10 @@ E = TypeVar("E", bound=Exception)
 
 class JsonExceptionHandler:
     def register_exception(
-            self,
-            exception_type: Type[E],
-            status_code: int,
-            get_detail: Callable[[E], Any],
+        self,
+        exception_type: Type[E],
+        status_code: int,
+        get_detail: Callable[[E], Any],
     ) -> None:
         raise NotImplementedError()
 
