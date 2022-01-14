@@ -6,6 +6,7 @@ dev_requires = [
     "flake8-quotes==3.3.1",
     "flake8-import-order==0.18.1",
     "black==21.12b0",
+    "bandit==1.7.1",
 ]
 
 
