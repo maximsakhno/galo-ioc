@@ -1,5 +1,7 @@
 # Galo-IOC
 
+![test workflow](https://github.com/maximsakhno/galo-ioc/actions/workflows/test.yml/badge.svg)
+
 🇷🇺[Russian version](README_ru.md)
 
 ## Description
