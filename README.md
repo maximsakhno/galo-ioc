@@ -1,9 +1,9 @@
 # Galo-IOC
 
-
 ![test workflow](https://github.com/maximsakhno/galo-ioc/actions/workflows/test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/maximsakhno/galo-ioc/branch/master/graph/badge.svg?token=4S2MSEZ06Z)](https://codecov.io/gh/maximsakhno/galo-ioc)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![PyPI](https://img.shields.io/pypi/v/galo_ioc)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
