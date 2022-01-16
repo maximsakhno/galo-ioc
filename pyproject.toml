@@ -43,3 +43,6 @@ test = [
 
 [project.urls]
 Source = "https://github.com/maximsakhno/galo-ioc"
+
+[tool.black]
+line-length = 100
