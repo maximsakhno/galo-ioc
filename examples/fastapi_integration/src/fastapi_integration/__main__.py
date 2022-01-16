@@ -1,9 +1,14 @@
 import os
 from asyncio import get_event_loop
-from uvicorn import Config, Server
-from galo_ioc import get_factory, FactoryContainerImpl
-from congratulations_app.startup_utils import get_module_names_path, read_module_names, load_plugins
+
+from congratulations_app.startup_utils import (
+    get_module_names_path,
+    load_plugins,
+    read_module_names,
+)
 from fastapi_integration.app import AppFactory
+from galo_ioc import FactoryContainerImpl, get_factory
+from uvicorn import Config, Server
 
 
 def main() -> None:

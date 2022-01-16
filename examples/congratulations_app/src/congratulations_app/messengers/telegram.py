@@ -1,6 +1,5 @@
-from galo_ioc import add_factory
 from congratulations_app.messengers import Messenger, MessengerFactory
-
+from galo_ioc import add_factory
 
 __all__ = [
     "TelegramMessenger",

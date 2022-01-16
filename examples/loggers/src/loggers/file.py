@@ -1,9 +1,9 @@
-import os
 import logging
+import os
 from typing import Optional
+
 from galo_ioc import add_factory
 from loggers import LoggerFactory
-
 
 __all__ = [
     "load",

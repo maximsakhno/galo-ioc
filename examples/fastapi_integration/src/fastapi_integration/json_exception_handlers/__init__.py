@@ -1,7 +1,7 @@
-from typing import TypeVar, Any, Callable, Type
+from typing import Any, Callable, Type, TypeVar
+
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-
 
 __all__ = [
     "E",

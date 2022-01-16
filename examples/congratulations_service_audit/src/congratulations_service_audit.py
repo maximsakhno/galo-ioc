@@ -1,12 +1,12 @@
 from logging import Logger
-from typing import Optional, Dict
-from galo_ioc import FactoryType, Factory, add_factory_decorator, get_factory
+from typing import Dict, Optional
+
 from congratulations_app.congratulations_services import (
     CongratulationsService,
     CongratulationsServiceFactory,
 )
+from galo_ioc import Factory, FactoryType, add_factory_decorator, get_factory
 from loggers import LoggerFactory
-
 
 __all__ = [
     "load",

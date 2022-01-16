@@ -1,6 +1,5 @@
-from galo_ioc import get_factory
 from fastapi_integration.current_user_resolvers.role_checkers import RoleCheckerFactory
-
+from galo_ioc import get_factory
 
 __all__ = [
     "load",

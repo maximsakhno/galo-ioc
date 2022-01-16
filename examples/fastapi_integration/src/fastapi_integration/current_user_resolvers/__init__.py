@@ -1,6 +1,6 @@
-from typing import Callable, Awaitable
-from fastapi_integration.users.models import User
+from typing import Awaitable, Callable
 
+from fastapi_integration.users.models import User
 
 __all__ = [
     "CurrentUserResolverFactory",

@@ -1,7 +1,7 @@
 from uuid import UUID
-from galo_ioc import add_factory
-from fastapi_integration.token_encoders import TokenEncoder, TokenEncoderFactory
 
+from fastapi_integration.token_encoders import TokenEncoder, TokenEncoderFactory
+from galo_ioc import add_factory
 
 __all__ = [
     "FakeTokenEncoder",

@@ -1,6 +1,5 @@
 from asyncpg.pool import Pool
 
-
 __all__ = [
     "ConnectionPoolFactory",
 ]

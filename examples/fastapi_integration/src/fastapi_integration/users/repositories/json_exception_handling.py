@@ -1,11 +1,11 @@
 from typing import Any
-from galo_ioc import get_factory
+
 from fastapi_integration.json_exception_handlers import JsonExceptionHandlerFactory
 from fastapi_integration.users.repositories import (
     UserAlreadyExistsException,
     UserNotFoundByIdException,
 )
-
+from galo_ioc import get_factory
 
 __all__ = [
     "load",

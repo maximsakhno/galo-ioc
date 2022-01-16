@@ -1,10 +1,9 @@
-from galo_ioc import get_factory
 from fastapi_integration.text_exception_handlers import TextExceptionHandlerFactory
 from fastapi_integration.users.repositories import (
     UserAlreadyExistsException,
     UserNotFoundByIdException,
 )
-
+from galo_ioc import get_factory
 
 __all__ = [
     "load",

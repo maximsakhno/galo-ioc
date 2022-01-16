@@ -1,12 +1,12 @@
+from datetime import datetime
 from typing import Dict
 from uuid import UUID, uuid4
-from datetime import datetime
-from galo_ioc import add_factory
+
 from fastapi_integration.users.models import (
+    PrivateUser,
+    User,
     UserToCreate,
     UserToUpdate,
-    User,
-    PrivateUser,
     convert_private_user_to_user,
 )
 from fastapi_integration.users.repositories import (
@@ -16,7 +16,7 @@ from fastapi_integration.users.repositories import (
     UserRepository,
     UserRepositoryFactory,
 )
-
+from galo_ioc import add_factory
 
 __all__ = [
     "InMemoryUserRepository",

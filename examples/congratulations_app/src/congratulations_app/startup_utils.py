@@ -1,7 +1,6 @@
-from typing import Sequence
 from argparse import ArgumentParser
 from importlib import import_module
-
+from typing import Sequence
 
 __all__ = [
     "get_module_names_path",

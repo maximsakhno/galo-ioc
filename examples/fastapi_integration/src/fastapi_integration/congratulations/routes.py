@@ -1,11 +1,10 @@
-from galo_ioc import get_factory
+from congratulations_app.congratulations_services import CongratulationsServiceFactory
 from fastapi.param_functions import Depends
 from fastapi.routing import APIRouter
-from congratulations_app.congratulations_services import CongratulationsServiceFactory
 from fastapi_integration.app import AppFactory
-from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
 from fastapi_integration.congratulations.models import CongratulationRequest
-
+from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
+from galo_ioc import get_factory
 
 __all__ = [
     "load",

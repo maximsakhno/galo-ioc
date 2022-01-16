@@ -1,18 +1,17 @@
 from typing import Any, Optional
-from unittest.mock import call, Mock
+from unittest.mock import Mock, call
 
 import pytest
-
 from galo_ioc import (
-    add_factory,
-    add_factory_decorator,
     Factory,
     FactoryAlreadyAddedException,
     FactoryContainerImpl,
     FactoryNotFoundException,
     FactoryType,
-    get_factory,
     NoFactoryContainerInContextException,
+    add_factory,
+    add_factory_decorator,
+    get_factory,
 )
 
 

@@ -1,7 +1,7 @@
-from typing import TypeVar, Callable, Type
+from typing import Callable, Type, TypeVar
+
 from fastapi.requests import Request
 from fastapi.responses import Response
-
 
 __all__ = [
     "E",

@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from galo_ioc import add_factory
 from fastapi_integration.app import AppFactory
-
+from galo_ioc import add_factory
 
 __all__ = [
     "load",

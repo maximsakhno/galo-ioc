@@ -1,6 +1,11 @@
 from uuid import UUID
-from fastapi_integration.users.models import UserToCreate, UserToUpdate, User, PrivateUser
 
+from fastapi_integration.users.models import (
+    PrivateUser,
+    User,
+    UserToCreate,
+    UserToUpdate,
+)
 
 __all__ = [
     "UserRepositoryException",

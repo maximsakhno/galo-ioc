@@ -1,11 +1,16 @@
-from uuid import UUID
 from datetime import datetime
+from uuid import UUID
+
 from asyncpg import Record
 from asyncpg.exceptions import UniqueViolationError
 from asyncpg.pool import Pool
-from galo_ioc import add_factory, get_factory
 from fastapi_integration.databases.postgresql import ConnectionPoolFactory
-from fastapi_integration.users.models import UserToCreate, UserToUpdate, User, PrivateUser
+from fastapi_integration.users.models import (
+    PrivateUser,
+    User,
+    UserToCreate,
+    UserToUpdate,
+)
 from fastapi_integration.users.repositories import (
     UserAlreadyExistsException,
     UserNotFoundByIdException,
@@ -13,7 +18,7 @@ from fastapi_integration.users.repositories import (
     UserRepository,
     UserRepositoryFactory,
 )
-
+from galo_ioc import add_factory, get_factory
 
 __all__ = [
     "PostgreSQLUserRepository",

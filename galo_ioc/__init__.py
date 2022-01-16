@@ -18,7 +18,6 @@ from typing import (
     TypeVar,
 )
 
-
 __all__ = [
     "Args",
     "KwArgs",

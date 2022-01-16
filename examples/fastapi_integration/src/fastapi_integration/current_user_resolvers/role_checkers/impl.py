@@ -1,13 +1,22 @@
-from typing import Optional, Iterable, Callable, Awaitable, Collection
 from enum import Enum, auto
-from galo_ioc import FactoryType, Factory, get_factory, add_factory, add_factory_decorator
+from typing import Awaitable, Callable, Collection, Iterable, Optional
+
 from fastapi.exceptions import HTTPException
 from fastapi.param_functions import Depends
 from fastapi.requests import Request
-from fastapi_integration.users.models import User
 from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
-from fastapi_integration.current_user_resolvers.role_checkers import RoleChecker, RoleCheckerFactory
-
+from fastapi_integration.current_user_resolvers.role_checkers import (
+    RoleChecker,
+    RoleCheckerFactory,
+)
+from fastapi_integration.users.models import User
+from galo_ioc import (
+    Factory,
+    FactoryType,
+    add_factory,
+    add_factory_decorator,
+    get_factory,
+)
 
 __all__ = [
     "RoleCheckerImpl",

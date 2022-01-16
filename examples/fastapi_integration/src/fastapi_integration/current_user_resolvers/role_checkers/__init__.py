@@ -1,7 +1,7 @@
 from typing import Collection
+
 from fastapi.requests import Request
 from fastapi_integration.users.models import User
-
 
 __all__ = [
     "RoleChecker",

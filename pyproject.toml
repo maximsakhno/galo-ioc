@@ -31,8 +31,8 @@ dynamic = ["version", "description"]
 dev = [
     "flake8==4.0.1",
     "flake8-quotes==3.3.1",
-    "flake8-import-order==0.18.1",
     "black==21.12b0",
+    "isort==5.10.1",
     "bandit==1.7.1",
 ]
 test = [
@@ -46,3 +46,7 @@ Source = "https://github.com/maximsakhno/galo-ioc"
 
 [tool.black]
 line-length = 100
+
+[tool.isort]
+profile = "black"
+known_third_party = ["galo_ioc"]

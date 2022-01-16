@@ -1,6 +1,5 @@
-from typing import Optional
 from logging import Logger
-
+from typing import Optional
 
 __all__ = [
     "LoggerFactory",

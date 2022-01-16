@@ -1,6 +1,6 @@
 from uuid import UUID
-from fastapi_integration.users.models import UserToCreate, UserToUpdate, User
 
+from fastapi_integration.users.models import User, UserToCreate, UserToUpdate
 
 __all__ = [
     "UserServiceException",

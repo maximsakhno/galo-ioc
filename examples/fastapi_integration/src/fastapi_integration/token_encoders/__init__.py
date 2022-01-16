@@ -1,6 +1,5 @@
 from uuid import UUID
 
-
 __all__ = [
     "TokenEncoder",
     "TokenEncoderFactory",

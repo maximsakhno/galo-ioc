@@ -1,5 +1,7 @@
 #!/bin/bash
 
 set -x
+set -e
 
-black galo_ioc tests
+black galo_ioc examples tests
+isort galo_ioc examples tests

@@ -1,15 +1,15 @@
-from typing import Callable, Awaitable
+from typing import Awaitable, Callable
+
 from fastapi.exceptions import HTTPException
 from fastapi.param_functions import Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from galo_ioc import get_factory, add_factory
+from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
 from fastapi_integration.users.models import User, convert_private_user_to_user
 from fastapi_integration.users.repositories import (
-    UserRepositoryFactory,
     UserNotFoundByLoginException,
+    UserRepositoryFactory,
 )
-from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
-
+from galo_ioc import add_factory, get_factory
 
 __all__ = [
     "load",

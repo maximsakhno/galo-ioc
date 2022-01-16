@@ -1,6 +1,5 @@
-from pydantic import BaseModel
 from fastapi_integration.models import Entity
-
+from pydantic import BaseModel
 
 __all__ = [
     "BaseUser",

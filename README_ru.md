@@ -2,9 +2,10 @@
 
 ![test workflow](https://github.com/maximsakhno/galo-ioc/actions/workflows/test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/maximsakhno/galo-ioc/branch/develop/graph/badge.svg?token=4S2MSEZ06Z)](https://codecov.io/gh/maximsakhno/galo-ioc)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
 🇬🇧[English version](README.md)
 

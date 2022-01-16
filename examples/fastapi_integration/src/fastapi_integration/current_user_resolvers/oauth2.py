@@ -1,17 +1,17 @@
-from typing import Callable, Awaitable, Dict
+from typing import Awaitable, Callable, Dict
+
 from fastapi.exceptions import HTTPException
 from fastapi.param_functions import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from galo_ioc import get_factory, add_factory
 from fastapi_integration.app import AppFactory
+from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
 from fastapi_integration.token_encoders import TokenEncoderFactory
 from fastapi_integration.users.models import User
 from fastapi_integration.users.repositories import (
-    UserRepositoryFactory,
     UserNotFoundByLoginException,
+    UserRepositoryFactory,
 )
-from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
-
+from galo_ioc import add_factory, get_factory
 
 __all__ = [
     "load",

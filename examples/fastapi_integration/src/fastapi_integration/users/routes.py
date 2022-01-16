@@ -1,12 +1,12 @@
 from uuid import UUID
-from galo_ioc import get_factory
+
 from fastapi.param_functions import Depends
 from fastapi.routing import APIRouter
 from fastapi_integration.app import AppFactory
-from fastapi_integration.users.models import UserToCreate, UserToUpdate, User
-from fastapi_integration.users.services import UserServiceFactory
 from fastapi_integration.current_user_resolvers import CurrentUserResolverFactory
-
+from fastapi_integration.users.models import User, UserToCreate, UserToUpdate
+from fastapi_integration.users.services import UserServiceFactory
+from galo_ioc import get_factory
 
 __all__ = [
     "load",
