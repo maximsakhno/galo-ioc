@@ -172,7 +172,7 @@ def call_factory(factory_type: FactoryType, id: Optional[str], args: Args, kwarg
 
 
 def get_factory(factory_type: Type[T], id: Optional[str] = None) -> T:
-    class Factory(factory_type):
+    class Factory(factory_type):  # type: ignore
         def __call__(self, *args: Any, **kwargs: Any) -> Any:
             return call_factory(factory_type, id, args, kwargs)
 
@@ -196,8 +196,8 @@ class FactoryContainerImpl(FactoryContainerContextManager):
             raise FactoryAlreadyAddedException(factory_type, id)
         check_factory_type(factory_type)
         for factory_decorator in self.__factory_decorators:
-            factory = factory_decorator(factory_type, id, factory)
-        self.__factories[factory_key] = factory
+            factory = factory_decorator(factory_type, id, factory)  # type: ignore
+        self.__factories[factory_key] = factory  # type: ignore
 
     def add_factory_decorator(self, factory_decorator: FactoryDecorator) -> None:
         for factory_key in self.__factories.keys():
