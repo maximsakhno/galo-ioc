@@ -1,3 +1,7 @@
+"""
+Provides an implementation of the service locator pattern.
+"""
+
 from contextvars import ContextVar, Token
 from types import TracebackType
 from typing import (
@@ -33,6 +37,9 @@ __all__ = [
     "get_factory",
     "FactoryContainerImpl",
 ]
+
+
+__version__ = "0.15.0"
 
 
 Args = tuple
