@@ -1,0 +1,64 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "galo_ioc"
+authors = [{name = "Maxim Sakhno", email = "maxim.sakhno@gmail.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dynamic = ["version", "description"]
+
+[project.optional-dependencies]
+dev = [
+    "mypy==0.931",
+    "flake8==4.0.1",
+    "flake8-quotes==3.3.1",
+    "black==21.12b0",
+    "isort==5.10.1",
+    "bandit==1.7.1",
+]
+test = [
+    "pytest==6.2.5",
+    "pytest-cov==3.0.0",
+    "pytest-asyncio==0.17.0",
+]
+
+[project.urls]
+Source = "https://github.com/maximsakhno/galo-ioc"
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+known_third_party = ["galo_ioc"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "import",
+    "__all__",
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

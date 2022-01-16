@@ -1,0 +1,50 @@
+# Logging
+loggers.stream
+
+# App
+fastapi_integration.app.instance
+
+# Exception handling
+# fastapi_integration.json_exception_handlers.impl
+fastapi_integration.text_exception_handlers.impl
+
+# Database
+fastapi_integration.databases.postgresql.impl
+
+# Users
+## Exception handling
+# fastapi_integration.users.repositories.json_exception_handling
+fastapi_integration.users.repositories.text_exception_handling
+
+## Repositories
+# fastapi_integration.users.repositories.in_memory
+fastapi_integration.users.repositories.postgresql
+
+## Services
+fastapi_integration.users.services.impl
+
+## Security
+# fastapi_integration.token_encoders.fake
+fastapi_integration.token_encoders.jwt
+
+# fastapi_integration.current_user_resolvers.basic_auth
+fastapi_integration.current_user_resolvers.oauth2
+
+fastapi_integration.current_user_resolvers.role_checkers.impl
+fastapi_integration.users.role_checking
+
+## Routes
+fastapi_integration.users.routes
+
+# Congratulations
+## Messengers
+secret_corporation_plugin.messengers.secret_corporation
+
+## Services
+congratulations_app.congratulations_services.russian
+
+## Routes
+fastapi_integration.congratulations.routes
+
+## Security
+fastapi_integration.congratulations.role_checking

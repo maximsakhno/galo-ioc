@@ -1,0 +1,25 @@
+name: Test
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Flit
+        run: pip install flit
+      - name: Install dependencies
+        run: flit install --symlink
+      - name: Lint
+        run: bash scripts/lint.sh
+      - name: Test
+        run: bash scripts/test.sh
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
