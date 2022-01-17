@@ -1,5 +1,5 @@
 """
-Provides an implementation of the service locator pattern.
+Lightweight inversion of control library implementing the service locator pattern
 """
 
 from contextvars import ContextVar, Token
