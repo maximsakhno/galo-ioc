@@ -1,5 +1,5 @@
 """
-Lightweight Inversion of Control library implementing the Service Locator pattern
+A lightweight Inversion of Control library implementing the Service Locator pattern.
 """
 
 from contextvars import ContextVar, Token
