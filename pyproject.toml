@@ -53,8 +53,9 @@ known_third_party = ["galo_ioc"]
 
 [tool.coverage.report]
 exclude_lines = [
-    "import",
-    "__all__",
+    "import ",
+    "__version__ = ",
+    "__all__ = ",
     "pragma: no cover",
     "def __repr__",
     "raise AssertionError",
